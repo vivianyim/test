@@ -1,6 +1,5 @@
 {{ if .Values.isLocal }}
 apiVersion: v1
-kind: PersistentVolumeClaim
 metadata:
   name: {{ include "dps-platform-airflow.fullname" . }}-logs-pvc
 spec:
