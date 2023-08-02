@@ -5,7 +5,7 @@
 {%- block destination %}
 {%- if ("IS_LOCAL" | getenv) == "True" %}
 access_key_id: {{ access_key_id }}
-secret_access_key: {{ secret_access_key }}
+secret_access: {{ secret_access_key }}
 {%- endif %}
 s3_bucket_name: {{ s3_bucket_name }}
 s3_bucket_path: {{ s3_bucket_path }}
