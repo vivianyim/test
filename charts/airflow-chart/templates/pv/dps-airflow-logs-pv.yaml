@@ -1,0 +1,37 @@
+{{ if .Values.isLocal }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ include "dps-platform-airflow.fullname" . }}-logs-pv
+  labels:
+    type: local
+spec:
+  storageClassName: manual 
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany 
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /root/airflow-logs
+{{ else if .Values.dpsAirflow.enableLogsEfsPV }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ include "dps-platform-airflow.fullname" . }}-logs-pv
+  labels:
+    volume-type: efs
+    use-for: {{ include "dps-platform-airflow.fullname" . }}-logs
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: efs-sc # It is defined in k8s-state.
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: "{{ .Values.dpsAirflow.logsEfsId }}"
+
+{{ end }}

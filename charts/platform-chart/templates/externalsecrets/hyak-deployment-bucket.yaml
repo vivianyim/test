@@ -1,0 +1,12 @@
+apiVersion: 'kubernetes-client.io/v1'
+kind: ExternalSecret
+metadata:
+  name: hyak-deployment-bucket-secrets
+  namespace: dps
+spec:
+  backendType: systemManager
+  data:
+    - key: /dps/hyak-deployment/user/access-key
+      name: hyak-deployment-user-access-key
+    - key: /dps/hyak-deployment/user/access-secret
+      name: hyak-deployment-user-access-secret

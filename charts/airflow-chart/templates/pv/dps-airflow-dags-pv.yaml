@@ -1,0 +1,19 @@
+{{ if .Values.isLocal }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ include "dps-platform-airflow.fullname" . }}-dags-pv
+  labels:
+    type: local
+spec:
+  storageClassName: manual 
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce 
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /root/dags
+{{ else }}
+  # The dags are baked in for dev+ builds so no pv is required
+{{ end }}

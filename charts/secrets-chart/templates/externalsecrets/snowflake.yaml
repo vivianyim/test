@@ -1,0 +1,24 @@
+# External Secret
+# Creates and syncronizes a Kubernetes secret using a backend storage source
+apiVersion: 'kubernetes-client.io/v1'
+kind: ExternalSecret
+metadata:
+  name: snowflake-airflow
+  namespace: dps
+spec:
+  backendType: systemManager
+  data:
+    - key: /dps/db/snowflake/account
+      name: db.account
+    - key: /dps/db/snowflake/user
+      name: db.user
+    - key: /dps/db/snowflake/password
+      name: db.password
+    - key: /dps/db/snowflake/role
+      name: db.role
+    - key: /dps/db/snowflake/default-warehouse
+      name: db.default-warehouse
+    - key: /dps/db/snowflake/raw-db-name
+      name: db.raw
+    - key: /dps/db/snowflake/analytics-db-name
+      name: db.analytics

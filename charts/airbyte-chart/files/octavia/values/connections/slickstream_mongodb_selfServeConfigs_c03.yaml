@@ -1,0 +1,12 @@
+_template: connection
+
+resource_name: slickstream-mongodb-c03-selfServeConfigs
+
+source: slickstream_mongodb_c03
+destination: slickstream-s3-raw
+status: active
+namespace_format: c03/
+streams:
+  - name: selfServeConfigs
+    namespace: guild-server
+    destination_sync_mode: append

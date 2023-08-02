@@ -1,0 +1,16 @@
+{%- extends "source.yaml" %}
+{%- set definition_id = "decd338e-5647-4c0b-adf4-da0e75f5a750" %}
+{%- set definition_image = "airbyte/source-postgres" %}
+{%- set definition_version = "0.4.31" %}
+{%- block source %}
+host: {{ host }}
+port: {{ port or 5432 }}
+schemas: {{ schemas or ["public"] }}
+database: {{ database or "postgres" }}
+username: {{ username or "postgres" }}
+password: "{{ password or 'postgres' }}"
+tunnel_method:
+  tunnel_method: {{ tunnel_method or "NO_TUNNEL" }}
+replication_method:
+  method: {{ replication_method or "Standard" }}
+{%- endblock %}

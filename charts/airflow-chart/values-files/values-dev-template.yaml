@@ -1,0 +1,29 @@
+dpsAirflow:
+  executeMarmaladeJob: true
+
+airflow:
+  flower:
+    enabled: true
+  images:
+    flower:
+      tag: 2.6.2
+  ingress:
+    web:
+      enabled: true
+      host: airflow-dps.development.cafemedia.com
+      annotations:
+        kubernetes.io/ingress.class: nginx
+        nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+  extraEnv: |-
+    - name: "AIRFLOW_VAR_ENV"
+      value: "dev"
+    - name: "AIRFLOW_VAR_AWS_ACCOUNT"
+      value: "312505582686"
+    - name: "DD_AGENT_HOST"
+      valueFrom:
+        fieldRef:
+          fieldPath: status.hostIP
+    - name: AIRFLOW__METRICS__STATSD_HOST
+      valueFrom:
+        fieldRef:
+          fieldPath: status.hostIP

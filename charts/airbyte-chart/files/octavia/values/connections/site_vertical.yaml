@@ -1,0 +1,10 @@
+_template: connection
+
+resource_name: site_vertical
+
+source: adthrive_postgres_looker_replica
+destination: snowflake_airbyte
+status: active
+streams:
+  - name: site_vertical
+    namespace: public

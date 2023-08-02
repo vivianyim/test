@@ -1,0 +1,28 @@
+montecarlo:
+  freshness:
+    - table: analytics:rubicon.by_advertiser
+      name: Magnite data available by 8:10 PM ET
+      freshness_threshold: 720
+      description: Checks to see if magnite data is available by 1 AM UTC on next day
+      schedule:
+        type: fixed
+        start_time: "2022-08-24T01:00"
+        interval_minutes: 1440
+      labels:
+        - DPS
+
+  custom_sql:
+    - description: Number of Magnite data report Categories Available on the day
+      sql: select count(distinct file_name) from analytics.rubicon.by_advertiser where date=dateadd(day, -2, current_date)
+      query_result_type: SINGLE_NUMERIC
+      name: Magnite data reports type availability Check
+      comparisons:
+        - type: threshold
+          operator: LT
+          threshold_value: 4
+      schedule:
+        type: fixed
+        start_time: "2022-08-24T01:00"
+        interval_minutes: 1440
+      labels:
+        - DPS

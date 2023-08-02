@@ -1,0 +1,20 @@
+montecarlo:
+  volume:
+    - table: raw:ga4_application_analytics.ga4_app_analytics_by_date_raw
+      name: GA4 Application Analytics by Date Volume
+      volume_metric: total_row_count
+      comparisons: 
+        - type: growth_volume 
+          operator: GT
+          baseline_agg_function: AVG 
+          number_of_agg_periods: 2
+          baseline_interval_minutes: 1440
+          max_buffer_value: 150
+          max_buffer_modifier_type: PERCENTAGE
+      description: GA4 Application Analytics By Date Volume SLI
+      schedule:
+        type: fixed # must be fixed
+        start_time: "2022-08-23T16:30"
+        interval_minutes: 1440
+      labels:
+        - DPS

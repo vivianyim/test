@@ -1,0 +1,67 @@
+{%- extends "resource.yaml" %}
+{%- set definition_type = "connection" %}
+{%- block resource1 %}
+source_configuration_path: sources/{{ source }}/configuration.yaml
+destination_configuration_path: destinations/{{ destination }}/configuration.yaml
+{%- endblock %}
+{%- block resource2 %}
+status: {{ status or "inactive" }}
+skip_reset: {{ skip_reset or "true" }}
+namespace_definition: {{ "customformat" if namespace_format else (namespace_definition or "destination") }}
+namespace_format: {{ namespace_format or "${SOURCE_NAMESPACE}" }}
+prefix: {{ prefix or '""' }}
+{%- if operator_type == "normalization" %}
+operations:
+  - name: Normalization
+    operator_configuration:
+      normalization:
+        option: basic
+      operator_type: normalization
+{%- endif %}
+schedule_type: {{ schedule_type or "manual" }}
+{%- if schedule_type == "basic" %}
+schedule_data:
+  basic_schedule:
+    time_unit: {{ time_unit or "hours" }}
+    units: {{ units or 24 }}
+{%- elif schedule_type == "cron" %}
+schedule_data:
+  cron:
+    cron_time_zone: {{ cron_time_zone or "US/Eastern" }}
+    cron_expression: {{ cron_expression or "0 0 0 * * ?" }}
+{%- endif %}
+sync_catalog:
+  streams:
+  {%- for stream in streams %}
+    - config:
+        cursor_field:
+          {%- if stream.cursor_field %}
+          - {{ stream.cursor_field }}
+          {%- else %}
+          []
+          {%- endif %}
+        destination_sync_mode: {{ stream.destination_sync_mode or "overwrite" }}
+        primary_key:
+          {%- if stream.primary_key %}
+          {%- for primary_key in stream.primary_key %}
+          - - {{ primary_key }}
+          {%- endfor %}
+          {%- else %}
+          []
+          {%- endif %}
+        selected: true
+        sync_mode: {{ stream.sync_mode or "full_refresh" }}
+      stream:
+        json_schema:
+          properties: {{ stream.properties or {} }}
+        name: {{ stream.name }}
+        {%- if stream.namespace %}
+        namespace: {{ stream.namespace }}
+        {%- endif %}
+        supported_sync_modes:
+          - full_refresh
+          - incremental
+  {%- endfor %}
+{%- block vertex %}
+{%- endblock %}
+{%- endblock %}

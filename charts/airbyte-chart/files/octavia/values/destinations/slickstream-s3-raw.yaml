@@ -1,0 +1,13 @@
+_template: s3
+
+resource_name: slickstream-s3-raw
+
+access_key_id: ${AIRBYTE_AWS_USER_KEY}
+secret_access_key: ${AIRBYTE_AWS_SECRET_KEY}
+s3_bucket_name: cm-dps-raw-${S3_AWS_ACCOUNT}
+s3_bucket_path: airbyte/slickstream
+s3_bucket_region: us-east-1
+format_type: JSONL
+compression_type: GZIP
+flattening: "No flattening"
+s3_path_format: /${STREAM_NAME}/year=${YEAR}/month=${MONTH}/day=${DAY}/cluster=${NAMESPACE}/${EPOCH}_

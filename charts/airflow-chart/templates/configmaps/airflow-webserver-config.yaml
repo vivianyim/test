@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "dps-platform-airflow.fullname" . }}-webserver-config
+data:
+
+  webserver_config.yaml: |
+{{ .Files.Get "airflow-files/webserver_config.yaml" | indent 4 }}
+
+{{ if .Values.dpsAirflow.enableLdap }}
+  webserver_config.py: |
+{{ .Files.Get "airflow-files/webserver_config.py" | indent 4 }}
+{{ else }}
+  webserver_config.py: |
+{{ .Files.Get "airflow-files/webserver_config_local.py" | indent 4 }}
+{{ end }}
+

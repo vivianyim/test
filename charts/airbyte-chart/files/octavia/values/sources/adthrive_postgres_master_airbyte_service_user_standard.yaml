@@ -1,0 +1,8 @@
+_template: postgres
+
+resource_name: AdThrive Postgres - Master(airbyte_service_user) - Standard
+
+host: prod-postgresql-1.cgzx9u2u2gse.us-east-1.rds.amazonaws.com
+database: adthrive
+username: airbyte_service_user
+password: ${POSTGRES_AIRBYTE_SERVICE_USER_PASSWORD}

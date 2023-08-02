@@ -1,0 +1,11 @@
+# External Secret
+apiVersion: 'kubernetes-client.io/v1'
+kind: ExternalSecret
+metadata:
+  name: airtable-metadata
+  namespace: dps
+spec:
+  backendType: systemManager
+  data:
+    - key: aud.external.api.airtable.base-id
+      name: airtable-base-id

@@ -1,0 +1,17 @@
+apiVersion: v2
+name: dps-platform-airflow 
+description: Umbrella Helm Chart to Deploy Hyak Airflow
+type: application
+version: 1.0.0
+
+dependencies:
+  - name: common
+    repository: https://charts.bitnami.com/bitnami
+    tags:
+      - bitnami-common
+    version: 1.x.x
+
+  - name: airflow
+    repository: https://airflow.apache.org
+    version: 1.6.0
+    condition: airflow.enabled

@@ -1,0 +1,9 @@
+_template: connection
+
+resource_name: deal_c
+
+source: salesforce_prod
+destination: snowflake_airbyte
+status: active
+streams:
+  - name: Deal__c

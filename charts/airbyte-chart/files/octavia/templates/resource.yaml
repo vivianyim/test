@@ -1,0 +1,9 @@
+resource_name: {{ resource_name }}
+definition_type: {{ definition_type }}
+{%- block resource1 %}
+{%- endblock %}
+configuration:
+{%- filter indent(width=2) %}
+{%- block resource2 %}
+{%- endblock %}
+{%- endfilter %}

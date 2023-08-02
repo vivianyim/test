@@ -1,0 +1,11 @@
+apiVersion: 'kubernetes-client.io/v1'
+kind: ExternalSecret
+metadata:
+  name: hyak-repo-keys-private
+  namespace: dps
+spec:
+  backendType: systemManager
+  data:
+    - key: /dps/key/hyak-repo/private
+      name: id_rsa
+

@@ -1,0 +1,11 @@
+# External Secret
+apiVersion: 'kubernetes-client.io/v1'
+kind: ExternalSecret
+metadata:
+  name: topic-keys-airflow
+  namespace: dps
+spec:
+  backendType: systemManager
+  data:
+    - key: /dps/key/extractor/topic-api-key
+      name: topic-api-key

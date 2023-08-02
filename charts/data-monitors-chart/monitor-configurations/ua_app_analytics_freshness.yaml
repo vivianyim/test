@@ -1,0 +1,12 @@
+montecarlo:
+  freshness:
+    - table: raw:application_analytics.app_analytics_by_date_raw
+      name: UA Application Analytics Data Available 12:30PM ET
+      freshness_threshold: 180 # required
+      description: UA Application Analytics by Date Freshness
+      schedule:
+        type: fixed # must be fixed
+        start_time: "2022-08-23T16:30"
+        interval_minutes: 1440
+      labels:
+        - DPS

@@ -1,0 +1,6 @@
+{%- extends "vertex.yaml" %}
+{%- set definition_type = "source" %}
+{%- block vertex %}
+{%- block source %}
+{%- endblock %}
+{%- endblock %}

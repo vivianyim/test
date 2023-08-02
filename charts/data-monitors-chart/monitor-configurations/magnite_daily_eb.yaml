@@ -1,0 +1,28 @@
+montecarlo:
+  freshness:
+    - table: analytics:rubicon.by_advertiser_eb
+      name: Magnite EB data available by 9:10 AM ET
+      freshness_threshold: 180
+      description: Checks to see if magnite eb data is available on that morning
+      schedule:
+        type: fixed
+        start_time: "2022-08-24T14:00"
+        interval_minutes: 1440
+      labels:
+        - DPS
+
+  custom_sql:
+    - description: Number of Magnite EB data report Categories Available on the day
+      sql: select count(distinct file_name) from analytics.rubicon.by_advertiser_eb where date=dateadd(day, -1, current_date)
+      query_result_type: SINGLE_NUMERIC
+      name: Magnite EB data reports type availability Check
+      comparisons:
+        - type: threshold
+          operator: LT
+          threshold_value: 4
+      schedule:
+        type: fixed
+        start_time: "2022-08-24T14:00"
+        interval_minutes: 1440
+      labels:
+        - DPS

@@ -1,0 +1,18 @@
+containerPorts:
+  postgresql: 7654
+
+image:
+  repository: bitnami/postgresql
+  tag: 11
+
+primary:
+  service:
+    ports:
+      postgresql: 7654
+  initdb:
+    scriptsConfigMap: postgresql-localdb-adthrive
+
+auth:
+  username: localpg
+  password: localpg
+  database: adthrive

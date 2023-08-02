@@ -1,0 +1,11 @@
+_template: snowflake
+
+resource_name: Snowflake-Airbyte
+
+role: ${SNOWFLAKE_ROLE}
+database: ${SNOWFLAKE_DATABASE}
+username: ${SNOWFLAKE_USERNAME}
+warehouse: ${SNOWFLAKE_WAREHOUSE}
+password: ${SNOWFLAKE_PASSWORD}
+host: vja32779.us-east-1.snowflakecomputing.com
+schema: AIRBYTE_RAW

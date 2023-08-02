@@ -1,0 +1,63 @@
+montecarlo:
+  custom_sql:
+    - sql: |
+        WITH rows_by_date AS (
+          SELECT
+            date,
+            COUNT(*) = 8 AS rows_present -- there should be 8 rows
+          FROM ANALYTICS.ADTHRIVE.GAM_OM_PMP_EARNINGS_ADJUSTED
+          WHERE date >= DATEADD('days', -50, CURRENT_DATE())
+          GROUP BY date
+        )
+        SELECT
+          SUM(CAST(rows_present AS INT)) - COUNT(*) AS incomplete_days
+        FROM rows_by_date;
+      query_result_type: SINGLE_NUMERIC
+      name: Alert - GAM-OM-PMP-Adjustment Incomplete Days
+      description: GAM-OM-PMP-Adjustment number of incomplete days.
+      notes: |
+        Ensure that there are no incomplete days. Alert otherwise.
+        Task - https://github.com/cafemedia/snowflake/blob/master/analytics/adthrive/tasks/gam_pmp_om_adjustment.sql
+        The stored procedure may need to be rerun. Otherwise consult the runbook.
+        Runbook - https://cafemedia.atlassian.net/wiki/spaces/DPS/pages/1282473989/GAM+OM+PMP+Adjustment
+      comparisons:
+        - type: threshold
+          operator: GT
+          threshold_value: 0
+      schedule:
+        type: fixed
+        start_time: "2022-10-18T20:00:00"
+        interval_minutes: 1440
+      labels:
+        - DPS
+
+    - sql: |
+        WITH rows_by_date AS (
+          SELECT
+            date,
+            COUNT(*) = 8 AS rows_present -- there should be 8 rows
+          FROM ANALYTICS.ADTHRIVE.GAM_OM_PMP_EARNINGS_ADJUSTED
+          WHERE date >= DATEADD('days', -50, CURRENT_DATE())
+          GROUP BY date
+        )
+        SELECT
+          DATEDIFF('days', MAX(date), CURRENT_DATE()) AS last_data_delay_days
+        FROM rows_by_date;
+      query_result_type: SINGLE_NUMERIC
+      name: Alert - GAM-OM-PMP-Adjustment Delayed Days
+      description: GAM-OM-PMP-Adjustment number of delayed days.
+      notes: |
+        Ensure that data is present up to 2 days ago. Alert otherwise.
+        Task - https://github.com/cafemedia/snowflake/blob/master/analytics/adthrive/tasks/gam_pmp_om_adjustment.sql
+        The stored procedure may need to be rerun. Otherwise consult the runbook.
+        Runbook - https://cafemedia.atlassian.net/wiki/spaces/DPS/pages/1282473989/GAM+OM+PMP+Adjustment
+      comparisons:
+        - type: threshold
+          operator: GT
+          threshold_value: 2
+      schedule:
+        type: fixed
+        start_time: "2022-10-18T20:00:00"
+        interval_minutes: 1440
+      labels:
+        - DPS

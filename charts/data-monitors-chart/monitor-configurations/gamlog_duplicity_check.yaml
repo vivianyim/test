@@ -1,0 +1,45 @@
+montecarlo:
+  custom_sql:
+    - sql: |
+        SELECT 
+          NVL(COUNT(*), 0) AS DUPS
+        FROM 
+        (
+            SELECT 
+            KEYPART,
+            TIMEUSEC2,
+            DATA_DATE,
+            DATA_HOUR,
+            IMPRESSIONID,
+            LINEITEMID,
+            LINEITEMNAME,
+            COUNT(*) AS CT
+          FROM RAW.GAM360.GAMLOG
+            WHERE DATA_DATE =  DATEADD('DAYS', -1, CURRENT_DATE())
+            GROUP BY 
+              KEYPART,
+              TIMEUSEC2,
+              DATA_DATE,
+              DATA_HOUR,
+              IMPRESSIONID,
+              LINEITEMID,
+              LINEITEMNAME
+            HAVING CT > 1
+          );
+      query_result_type: SINGLE_NUMERIC
+      name: Alert - Gamlog Duplicity Check
+      description: Gamlog data Duplicity Check
+      notes: |
+        Returns count if some duplicate exists in gamlog, and 0 otherwise
+        We will need to investigate gamlog data and possibly rerun or manually work on data.
+      comparisons:
+        - type: threshold
+          operator: GT
+          threshold_value: 0
+      schedule:
+        type: fixed
+        start_time: "2023-03-07T00:00:00"
+        interval_crontab:
+          - "0 16 * * *"
+      labels:
+        - DPS

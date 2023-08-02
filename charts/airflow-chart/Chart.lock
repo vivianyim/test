@@ -1,0 +1,9 @@
+dependencies:
+- name: common
+  repository: https://charts.bitnami.com/bitnami
+  version: 1.17.1
+- name: airflow
+  repository: https://airflow.apache.org
+  version: 1.6.0
+digest: sha256:fff36a5cc1cc4d34a7b6d3869eee3ece2426affa58e030bd8b15f4176eea5055
+generated: "2022-12-20T18:41:39.018325-08:00"

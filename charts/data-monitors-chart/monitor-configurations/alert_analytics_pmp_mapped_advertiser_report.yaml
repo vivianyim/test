@@ -1,0 +1,52 @@
+montecarlo:
+  custom_sql:
+    - sql: |
+        select 
+            nvl(count(*), 0) as dups
+        from 
+        (
+            select
+                SSP_SOURCE,
+                DATA_SOURCE,
+                SUPPLY_SOURCE,
+                BRAND,
+                DEAL_NAME,
+                DEAL_MAPPING_DEAL_ID,
+                DISPLAY_TYPE,
+                DEVICE_RAW,
+                DEVICE_CLEAN,
+                count(*) as row_count
+            from ANALYTICS.PMP.MAPPED_ADVERTISER_REPORT
+            where 
+                date = CURRENT_DATE - 1
+                and
+                deal_mapping_deal_id is not null
+            group by 
+                SSP_SOURCE,
+                DATA_SOURCE,
+                SUPPLY_SOURCE,
+                BRAND,
+                DEAL_NAME,
+                DEAL_MAPPING_DEAL_ID,
+                DISPLAY_TYPE,
+                DEVICE_RAW,
+                DEVICE_CLEAN
+        )
+        where row_count > 1;
+      query_result_type: SINGLE_NUMERIC
+      name: Alert - MAPPED ADVERTISER REPORT DUPLICATION
+      description: Mapped Advertiser Report Duplication
+      notes: |
+        Checks the Analytics Mapped Advertiser Report for duplicate rows.
+        It ignores duplication caused by missing join conditions.
+      comparisons:
+        - type: threshold
+          operator: GT
+          threshold_value: 0
+      schedule:
+        type: fixed
+        start_time: "2022-12-14T00:00:00"
+        interval_crontab:
+          - "0 17 * * *"
+      labels:
+        - DPS

@@ -1,0 +1,105 @@
+# External Secret
+# Creates and syncronizes a Kubernetes secret using a backend storage source
+apiVersion: 'kubernetes-client.io/v1'
+kind: ExternalSecret
+metadata:
+  name: extractor-config-airflow
+  namespace: dps
+spec:
+  backendType: systemManager
+  data:
+    # GLOBAL
+    - key: /dps/config/extractor/raw-bucket
+      name: raw-bucket
+    - key: /dps/config/extractor/unload-bucket
+      name: unload-bucket
+    - key: /dps/config/extractor/max-retries
+      name: max-retries
+    - key: /dps/config/extractor/cm-data-uploads
+      name: cm-data-uploads
+    # MAGNITE
+    - key: /dps/config/extractor/magnite-api-base-url
+      name: magnite-api-base-url
+    # GAM
+    - key: /dps/config/extractor/gam-network-code
+      name: gam-network-code
+    - key: /dps/config/extractor/gam-base-url
+      name: gam-base-url
+    - key: /dps/config/extractor/gam-application-name
+      name: gam-application-name
+    - key: /dps/config/extractor/gam-api-version
+      name: gam-api-version
+    - key: /dps/config/extractor/gam-max-orders-per-report
+      name: gam-max-orders-per-report
+    # GOOGLE ANALYTICS
+    - key: /dps/config/extractor/google-analytics-data-source-id
+      name: google-analytics-data-source-id
+    - key: /dps/config/extractor/google-analytics-concurrency
+      name: google-analytics-concurrency
+    # WORDPRESS
+    - key: /dps/config/extractor/wordpress-posts-base-url
+      name: wordpress-posts-base-url
+    # GOOGLE DRIVE
+    - key: /dps/key/extractor/google-drive-key
+      name: google-drive-key
+    - key: /dps/key/extractor/google-drive-id
+      name: google-drive-id
+    # RANKSENSE SEO SHIELD
+    - key: /dps/config/extractor/ranksense-seoshield-dataset-file-path
+      name: ranksense-seoshield-dataset-file-path
+    # ADSENSE
+    - key: /dps/config/extractor/google-adsense-data-source-id
+      name: google-adsense-data-source-id
+    # PRIMIS
+    - key: /dps/config/extractor/primis-api-base-url
+      name: primis-api-base-url
+    - key: /dps/config/extractor/primis-api-version
+      name: primis-api-version
+    # TOPIC
+    - key: /dps/config/extractor/topic-api-url
+      name: topic-api-url
+    # TARGET
+    - key: /dps/config/extractor/target-base-api-url
+      name: target-base-api-url
+    # GOOGLE SEARCH CONSOLE
+    - key: /dps/config/extractor/google-search-console-oauth-redirect-url
+      name: google-search-console-oauth-redirect-url
+    - key: /dps/config/extractor/google-search-console-concurrency
+      name: google-search-console-concurrency
+    - key: /dps/config/extractor/google-search-console-row-limit
+      name: google-search-console-row-limit
+    # PUBMATIC
+    - key: /dps/config/extractor/pubmatic-api-base-url
+      name: pubmatic-api-base-url
+    - key: /dps/config/extractor/pubmatic-refresh-url-suffix
+      name: pubmatic-refresh-url-suffix
+    - key: /dps/config/extractor/pubmatic-report-url-suffix
+      name: pubmatic-report-url-suffix
+    # DATA EXTRACT EMAIL CREDENTIALS
+    - key: /dps/config/extractor/data-extract-email-address
+      name: data-extract-email-address
+    - key: /dps/config/extractor/data-extract-email-password
+      name: data-extract-email-password
+    # DATA EXTRACT CREDENTIALS for APPNEXUS
+    - key: /dps/config/extractor/app-nexus-api-base-url
+      name: app-nexus-api-base-url
+    - key: /dps/config/extractor/app-nexus-username
+      name: app-nexus-username
+    - key: /dps/config/extractor/app-nexus-password
+      name: app-nexus-password
+    # DATA EXTRACT CREDENTIALS for TRIPLELIFT    
+    - key: /dps/config/extractor/triplelift-api-base-url
+      name: triplelift-api-base-url
+    - key: /dps/config/extractor/triplelift-username
+      name: triplelift-username
+    - key: /dps/config/extractor/triplelift-password
+      name: triplelift-password
+    - key: /dps/config/extractor/triplelift-auth-url
+      name: triplelift-auth-url
+    - key: /dps/config/extractor/triplelift-x-api-key
+      name: triplelift-x-api-key
+    # GA4 INHOUSE REPORT FOR ALL CUSTOM DIMENSIONS
+    - key: /dps/config/extractor/ga4-inhouse-propertyid
+      name: ga4-inhouse-propertyid
+    - key: /dps/config/extractor/ga4-inhouse-refresh-token
+      name: ga4-inhouse-refresh-token

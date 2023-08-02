@@ -1,0 +1,25 @@
+montecarlo:
+  custom_sql:
+    - sql: |
+        SELECT 
+          SUM(IFF(job_completed_at < DATEADD('hours', -24, CURRENT_TIMESTAMP) AND processed_completed_at IS NULL, 1, 0)) as incomplete
+        FROM analytics.util.external_job_log
+        WHERE job_completed_at > DATEADD('hours', -24, CURRENT_TIMESTAMP)
+        ;
+      query_result_type: SINGLE_NUMERIC
+      name: Alert - External Job Log Incomplete
+      description: External Job Log incomplete jobs alert
+      notes: |
+        Get a list of distinct hours and verify that the difference between them in order is exactly 1. Otherwise, alert.
+        There is are external job log processing errors.
+        https://cafemedia.atlassian.net/wiki/spaces/DPS/pages/1541046309/Use+External+Job+Log+to+Mirror+Data+into+Snowflake#Troubleshooting
+      comparisons:
+        - type: threshold
+          operator: GT
+          threshold_value: 0
+      schedule:
+        type: fixed
+        start_time: "2022-10-12T00:00:00"
+        interval_minutes: 30
+      labels:
+        - DPS

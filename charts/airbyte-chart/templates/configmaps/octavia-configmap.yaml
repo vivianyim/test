@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "airbyte-umbrella.fullname" . }}-octavia-files-configmap
+data:
+  {{- $files := .Files }}
+  {{- range $path, $_ := .Files.Glob "files/**" }}
+  {{ $path | replace "/" "-x-" }}: |
+{{ $files.Get $path | indent 4 }}
+  {{- end }}

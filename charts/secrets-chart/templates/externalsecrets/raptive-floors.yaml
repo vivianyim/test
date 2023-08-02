@@ -1,0 +1,14 @@
+# External Secret
+# Creates and syncronizes a Kubernetes secret using a backend storage source
+apiVersion: "kubernetes-client.io/v1"
+kind: ExternalSecret
+metadata:
+  name: raptive-floors
+  namespace: dps
+spec:
+  backendType: systemManager
+  data:
+    - key: /dps/key/raptive-floors/ad_code_config_client_id
+      name: ad_code_config_client_id
+    - key: /dps/key/raptive-floors/ad_code_config_client_secret
+      name: ad_code_config_client_secret

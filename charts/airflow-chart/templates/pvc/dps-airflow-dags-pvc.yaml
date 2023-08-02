@@ -1,0 +1,15 @@
+{{ if .Values.isLocal }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "dps-platform-airflow.fullname" . }}-dags-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: manual
+{{ else }}
+  # The dags are baked in for dev+ builds so no pvc is required
+{{ end }}

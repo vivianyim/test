@@ -1,0 +1,8 @@
+_template: postgres
+
+resource_name: AdThrive Postgres - Looker Replica
+
+host: ${POSTGRES_HOST}
+database: ${POSTGRES_DATABASE}
+username: ${POSTGRES_USERNAME}
+password: ${POSTGRES_PASSWORD}

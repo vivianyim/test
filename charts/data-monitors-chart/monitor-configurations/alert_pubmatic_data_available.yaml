@@ -1,0 +1,34 @@
+montecarlo:
+  custom_sql:
+    - sql: |
+        WITH
+        hourly_by_device AS (
+        SELECT COUNT(*) as ct
+        FROM ANALYTICS.PUBMATIC.VW_HOURLY_BY_DEVICE
+        WHERE hour > DATEADD('days', -2, CURRENT_DATE())
+        )
+        SELECT
+          (1 = 1 AND hourly_by_device.ct > 0)::INT as data_present
+        FROM hourly_by_device
+        ;
+      query_result_type: SINGLE_NUMERIC
+      name: Alert - Pubmatic-Data-Available
+      description: Pubmatic data available within the last 2 days
+      notes: |
+        Returns 1 if some data exists in all tables, and 0 otherwise
+        There is missing data for yesterday for Pubmatic.
+        This may relate to any of these views in Snowflake:
+        * pubmatic.vw_hourly_by_device
+        scraper job: https://github.com/cafemedia/adthrive-dps-data/blob/master/src/jobs/pubmatic/README.md
+        We will need to investigate and possibly rerun collection. Follow this guide:
+        https://cafemedia.atlassian.net/wiki/spaces/DPS/pages/1383596039/Pubmatic+API+Reports#Alert-Pubmatic-Most-Recent-Data-Older-Than-Expected---Hourly-By-Device%3A
+      comparisons:
+        - type: threshold
+          operator: LT
+          threshold_value: 1
+      schedule:
+        type: fixed
+        start_time: "2022-10-12T00:00:00"
+        interval_minutes: 360
+      labels:
+        - DPS

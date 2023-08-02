@@ -1,0 +1,133 @@
+montecarlo:
+  custom_sql:
+    - sql: |
+        SELECT ZEROIFNULL(SUM(gross_earnings)) AS gross_earnings
+        FROM ANALYTICS.ADTHRIVE.EARNINGS_AND_ANALYTICS
+        WHERE date = dateadd('day',-1,current_date)
+        AND category = 'adx_openmarket';
+      query_result_type: SINGLE_NUMERIC
+      name: Alert - Earnings & Analytics Adx Openmarket Gross Earnings
+      description: Earnings & Analytics Zero Gross Earnings Check for Adx Openmarket category.
+      notes: |
+        Earnings & Analytics Adx Openmarket category - alert if gross earnings from yesterday are zero.
+        Runbook - https://cafemedia.atlassian.net/wiki/spaces/DPS/pages/1348272171/Earnings+and+Analytics+Aggregations
+      comparisons:
+        - type: threshold
+          operator: EQ
+          threshold_value: 0
+      schedule:
+        type: fixed
+        start_time: "2022-10-18T13:20:00"
+        interval_minutes: 1440
+      labels:
+        - DPS
+
+    - sql: |
+        SELECT ZEROIFNULL(SUM(gross_earnings)) AS gross_earnings
+        FROM ANALYTICS.ADTHRIVE.EARNINGS_AND_ANALYTICS
+        WHERE date = dateadd('day',-1,current_date)
+        AND category = 'adx_pmp';
+      query_result_type: SINGLE_NUMERIC
+      name: Alert - Earnings & Analytics Adx PMP Gross Earnings
+      description: Earnings & Analytics Zero Gross Earnings Check for Adx PMP category.
+      notes: |
+        Earnings & Analytics Adx PMP category - alert if gross earnings from yesterday are zero.
+        Runbook - https://cafemedia.atlassian.net/wiki/spaces/DPS/pages/1348272171/Earnings+and+Analytics+Aggregations
+      comparisons:
+        - type: threshold
+          operator: EQ
+          threshold_value: 0
+      schedule:
+        type: fixed
+        start_time: "2022-10-18T13:20:00"
+        interval_minutes: 1440
+      labels:
+        - DPS
+
+    - sql: |
+        SELECT ZEROIFNULL(SUM(gross_earnings)) AS gross_earnings
+        FROM ANALYTICS.ADTHRIVE.EARNINGS_AND_ANALYTICS
+        WHERE date = dateadd('day',-1,current_date)
+        AND category = 'src';
+      query_result_type: SINGLE_NUMERIC
+      name: Alert - Earnings & Analytics SRC Category Gross Earnings
+      description: Earnings & Analytics Zero Gross Earnings Check for SRC category.
+      notes: |
+        Earnings & Analytics SRC category - alert if gross earnings from yesterday are zero.
+        Runbook - https://cafemedia.atlassian.net/wiki/spaces/DPS/pages/1348272171/Earnings+and+Analytics+Aggregations
+      comparisons:
+        - type: threshold
+          operator: EQ
+          threshold_value: 0
+      schedule:
+        type: fixed
+        start_time: "2022-10-18T13:20:00"
+        interval_minutes: 1440
+      labels:
+        - DPS
+
+    - sql: |
+        SELECT ZEROIFNULL(SUM(gross_earnings)) AS gross_earnings
+        FROM ANALYTICS.ADTHRIVE.EARNINGS_AND_ANALYTICS
+        WHERE date = dateadd('day',-1,current_date)
+        AND category = 'dfp';
+      query_result_type: SINGLE_NUMERIC
+      name: Alert - Earnings & Analytics DFP Category Gross Earnings
+      description: Earnings & Analytics Zero Gross Earnings Check for DFP category.
+      notes: |
+        Earnings & Analytics DFP category - alert if gross earnings from yesterday are zero.
+        Runbook - https://cafemedia.atlassian.net/wiki/spaces/DPS/pages/1348272171/Earnings+and+Analytics+Aggregations
+      comparisons:
+        - type: threshold
+          operator: EQ
+          threshold_value: 0
+      schedule:
+        type: fixed
+        start_time: "2022-10-18T13:20:00"
+        interval_minutes: 1440
+      labels:
+        - DPS
+
+    - sql: |
+        SELECT ZEROIFNULL(SUM(earnings)) AS pub_earnings
+        FROM ANALYTICS.ADTHRIVE.EARNINGS_AND_ANALYTICS
+        WHERE date = dateadd('day',-1,current_date)
+        AND category = 'src';
+      query_result_type: SINGLE_NUMERIC
+      name: Alert - Earnings & Analytics SRC Category Pub Earnings
+      description: Earnings & Analytics Zero Pub Earnings Check for SRC category.
+      notes: |
+        Earnings & Analytics SRC category - alert if pub earnings from yesterday are zero.
+        Runbook - https://cafemedia.atlassian.net/wiki/spaces/DPS/pages/1348272171/Earnings+and+Analytics+Aggregations
+      comparisons:
+        - type: threshold
+          operator: EQ
+          threshold_value: 0
+      schedule:
+        type: fixed
+        start_time: "2022-10-18T13:20:00"
+        interval_minutes: 1440
+      labels:
+        - DPS
+
+    - sql: |
+        SELECT ZEROIFNULL(SUM(earnings)) AS pub_earnings
+        FROM ANALYTICS.ADTHRIVE.EARNINGS_AND_ANALYTICS
+        WHERE date = dateadd('day',-1,current_date)
+        AND category = 'dfp';
+      query_result_type: SINGLE_NUMERIC
+      name: Alert - Earnings & Analytics DFP Category Pub Earnings
+      description: Earnings & Analytics Zero Pub Earnings Check for DFP category.
+      notes: |
+        Earnings & Analytics DFP category - alert if pub earnings from yesterday are zero.
+        Runbook - https://cafemedia.atlassian.net/wiki/spaces/DPS/pages/1348272171/Earnings+and+Analytics+Aggregations
+      comparisons:
+        - type: threshold
+          operator: EQ
+          threshold_value: 0
+      schedule:
+        type: fixed
+        start_time: "2022-10-18T13:20:00"
+        interval_minutes: 1440
+      labels:
+        - DPS

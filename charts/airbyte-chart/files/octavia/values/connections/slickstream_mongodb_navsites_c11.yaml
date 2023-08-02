@@ -1,0 +1,12 @@
+_template: connection
+
+resource_name: slickstream-mongodb-c11-navsites
+
+source: slickstream_mongodb_c11
+destination: slickstream-s3-landing-zone
+status: active
+namespace_format: c11/
+streams:
+  - name: navsites
+    namespace: guild-server
+    destination_sync_mode: append

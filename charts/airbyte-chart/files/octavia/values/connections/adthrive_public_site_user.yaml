@@ -1,0 +1,11 @@
+_template: connection
+
+resource_name: adthrive_public_site_user
+
+source: adthrive_postgres_looker_replica
+destination: snowflake_airbyte
+status: active
+prefix: postgres_
+streams:
+  - name: site_user
+    namespace: public

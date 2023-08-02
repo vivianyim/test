@@ -1,0 +1,15 @@
+{{ if .Values.isLocal }}
+# External Secret
+apiVersion: 'kubernetes-client.io/v1'
+kind: ExternalSecret
+metadata:
+  name: aud-snowflake
+  namespace: dps
+spec:
+  backendType: systemManager
+  data:
+    - key: aud.db.snowflake.user
+      name: snowflake-user
+    - key: aud.db.snowflake.password
+      name: snowflake-password
+{{ end }}

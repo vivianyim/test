@@ -1,0 +1,8 @@
+_template: salesforce
+
+resource_name: salesforce_prod
+
+auth_type: Client
+client_id: ${SALESFORCE_CLIENT_ID}
+client_secret: ${SALESFORCE_CLIENT_SECRET}
+refresh_token: ${SALESFORCE_REFRESH_TOKEN}

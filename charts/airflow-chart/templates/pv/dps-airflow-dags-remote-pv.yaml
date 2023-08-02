@@ -1,0 +1,36 @@
+{{ if .Values.isLocal }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ include "dps-platform-airflow.fullname" . }}-dags-remote-pv
+  labels:
+    type: local
+spec:
+  storageClassName: {{ include "dps-platform-airflow.fullname" . }}-dags-local-test
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /root/dags_efs_test
+{{ else if .Values.dpsAirflow.enableDagsEfsPV }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ include "dps-platform-airflow.fullname" . }}-dags-remote-pv
+  labels:
+    volume-type: efs
+    use-for: {{ include "dps-platform-airflow.fullname" . }}-dags-remote-pvc
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: {{ include "dps-platform-airflow.fullname" . }}-dags-efs
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: "{{ .Values.dpsAirflow.dagsEfsId }}"
+{{ end }}

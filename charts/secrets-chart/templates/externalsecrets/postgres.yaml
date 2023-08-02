@@ -1,0 +1,18 @@
+# External Secret
+# Creates and syncronizes a Kubernetes secret using a backend storage source
+apiVersion: 'kubernetes-client.io/v1'
+kind: ExternalSecret
+metadata:
+  name: postgres-airflow
+  namespace: dps
+spec:
+  backendType: systemManager
+  data:
+    - key: all.db.postgres.host
+      name: db.host
+    - key: all.db.postgres.database
+      name: db.database
+    - key: all.db.postgres.master-user
+      name: db.master-user
+    - key: all.db.postgres.master-password
+      name: db.master-password

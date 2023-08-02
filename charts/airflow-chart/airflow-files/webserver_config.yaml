@@ -1,0 +1,59 @@
+common_names:
+  - common_name: Hyak Admin Users
+    roles:
+      - Admin
+  - common_name: Hyak RevOps Users
+    roles:
+      - RevOps
+  - common_name: Hyak AdCode Users
+    roles:
+      - AdCode
+  - common_name: Hyak Product Engineering Users
+    roles:
+      - ProdEng
+  - common_name: Hyak Data Intelligence Users
+    roles:
+      - DI
+  - common_name: Hyak DataScience Users
+    roles:
+      - DataScience
+  - common_name: Hyak Slickstream Users
+    roles:
+      - Slickstream
+roles:
+  - role: RevOps
+    tags:
+      - tag: RevOps
+        perms:
+          - can_read
+          - can_edit
+  - role: AdCode
+    tags:
+      - tag: AdCode
+        perms:
+          - can_read
+          - can_edit
+  - role: ProdEng
+    tags:
+      - tag: ProdEng
+        perms:
+          - can_read
+          - can_edit
+  - role: DI
+    tags:
+      - tag: DI
+        perms:
+          - can_read
+          - can_edit
+  - role: DataScience
+    tags:
+      - tag: DataScience
+        perms:
+          - can_read
+          - can_edit
+  - role: Slickstream
+    tags:
+      - tag: Slickstream
+        perms:
+          - can_read
+          - can_edit

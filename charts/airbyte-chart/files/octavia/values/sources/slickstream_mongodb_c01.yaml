@@ -1,0 +1,12 @@
+_template: mongodb
+
+resource_name: slickstream-mongodb-cluster-c01
+
+user: ${SLICKSTREAM_MONGODB_USERNAME}
+database: guild-server
+password: ${SLICKSTREAM_MONGODB_PASSWORD}
+auth_source: admin
+tls: false
+host: ${SLICKSTREAM_MONGODB_URL_C01}
+port: ${SLICKSTREAM_MONGODB_PORT_C01}
+instance: standalone

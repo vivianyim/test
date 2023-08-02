@@ -1,0 +1,33 @@
+montecarlo:
+  custom_sql:
+    - sql: |
+        select cast(count (*) > 0 as int) as data_exists
+        from  ANALYTICS.PMP.ADVERTISER_REPORT_RAW
+        where date = current_date - 1 ;
+      query_result_type: SINGLE_NUMERIC
+      name: Alert - Snowflake-PMP_Advertiser_Report
+      description: Alert PMP Advertiser Report missing data
+      notes: |
+        Checks to see if yesterday's data has been collected by DATAOPS PMP ADVERTISER REPORT cron job.
+        # PMP ADVERTISER REPORT
+        0 15 * * * /opt/pyspark/bin/spark-submit --driver-memory 20g  ~/datascience/pmp/pmp_advertiser_report.py -l ~/logs/pmp_advertiser_report.log >> ~/logs/pmp_advertiser_report.log 2>&1
+        If data exists for yesterday, query returns 1. Otherwise query will return 0.
+        Revenue sources and associated tables:
+        AdX PMP - adthrive.gam_adx_deals 
+        Google Preferred Deal - adthrive.earnings_and_analytics where category = 'dfp' and order_group = 'Preferred Deal'
+        Google Direct PMP - adthrive.earnings_and_analytics where category = 'dfp' and order_group = 'Direct PMP'
+        Google Programmatic Guaranteed - adthrive.earnings_and_analytics where category = 'dfp' and order_group = 'Programmatic Gtd'
+        Rubicon - rubicon.by_advertiser & rubicon.by_advertiser_eb
+        Index Exchange - ix.cal_impression_event & IX.DEAL_MAPPING
+        Link to run book:
+        https://cafemedia.atlassian.net/wiki/spaces/DPS/pages/1167917276/PMP+Mapping+Advertiser+Report+Runbook
+      comparisons:
+        - type: threshold
+          operator: EQ
+          threshold_value: 0
+      schedule:
+        type: fixed
+        start_time: "2022-10-12T17:20:00"
+        interval_minutes: 1440
+      labels:
+        - DPS

@@ -1,0 +1,22 @@
+montecarlo:
+  custom_sql:
+    - sql: |
+        SELECT COUNT(*)
+        FROM ANALYTICS.GOOGLE_ANALYTICS.VW_DAILY_BY_DEMOGRAPHIC
+        WHERE date = DATEADD('days', -4, CURRENT_DATE);
+      query_result_type: SINGLE_NUMERIC
+      name: Alert - GA Demographic Data Not Available
+      description: Alert if there is no GA Demographic Data from 4 days ago.
+      notes: |
+        Reference - https://cafemedia.atlassian.net/wiki/spaces/DPS/pages/2115076097/GA+Demographic+Data
+        DAG - https://airflow-dps.production.cafemedia.com/dags/ga_demographic
+      comparisons:
+        - type: threshold
+          operator: EQ
+          threshold_value: 0
+      schedule:
+        type: fixed
+        start_time: "2022-12-06T19:00:00"
+        interval_minutes: 1440
+      labels:
+        - DPS

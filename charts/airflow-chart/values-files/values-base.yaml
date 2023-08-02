@@ -1,0 +1,156 @@
+dpsAirflow:
+  ## @param dpsAirflow.enableLogsEfsPV switch to create EFS based PV for airflow logs
+  enableLogsEfsPV: true
+  ## @param dpsAirflow.logsEfsId id of EFS volume in aws
+  logsEfsId: {{ airflow_logs_efs.value }}
+  enableLdap: true
+  ## @param dpsAirflow.enableDagsEfsPV switch to create EFS based PV for airflow DAGs
+  enableDagsEfsPV: true
+  ## @param dpsAirflow.dagsEfsId id of DAGs EFS volume in aws
+  dagsEfsId: {{ airflow_dags_efs.value }}
+
+airflow:
+  enabled: true
+  executor: CeleryKubernetesExecutor
+  fernetKeySecretName: airflow-custom-secrets
+  webserverSecretKeySecretName: airflow-custom-secrets
+  nodeSelector:
+    kops.k8s.io/instancegroup: dps
+  images:
+    airflow:
+      repository: 230172922685.dkr.ecr.us-east-1.amazonaws.com/dps-airflow
+      tag: "{{ env['IMAGE_TAG'] }}"
+    # timeout (in seconds) for airflow-migrations to complete (default is 60)
+    migrationsWaitTimeout: 120
+  securityContext:
+    runAsUser: 50000
+    fsGroup: 0
+    runAsGroup: 0
+  data:
+    metadataSecretName: airflow-metadata-connection-secret
+    resultBackendSecretName: airflow-result-backend-secret
+    brokerUrlSecretName: airflow-custom-secrets
+  redis:
+    passwordSecretName: airflow-custom-secrets
+  dags:
+    persistence:
+      enabled: true
+      size: 1Gi
+      storageClassName: dps-platform-airflow-dags-efs
+      existingClaim: dps-platform-airflow-dags-remote-pvc
+    gitSync:
+      enabled: false
+  logs:
+    persistence:
+      enabled: true
+      size: 5Gi
+      storageClassName: efs-sc
+      existingClaim: dps-platform-airflow-logs-pvc
+  statsd:
+    enabled: false
+  config:
+    secrets:
+      backend: "airflow.providers.amazon.aws.secrets.systems_manager.SystemsManagerParameterStoreBackend"
+      backend_kwargs: '{"connections_prefix": "/dps/airflow/connections", "variables_prefix": "/dps/airflow/variables"}'
+    metrics:
+      statsd_on: true
+      statsd_port: 8125
+  airflowPodAnnotations:
+    iam.amazonaws.com/role: system/hyak-role
+  env:
+    - name: AIRFLOW__WEBSERVER__INSTANCE_NAME
+      value: "Commit SHA: {{ env['IMAGE_TAG'] }} | Tag: {{ env['TAG_VERSION'] }}"
+    - name: AWS_DEFAULT_REGION
+      value: us-east-1
+    - name: AIRFLOW__CORE__PARALLELISM
+      value: "128"
+    - name: AIRFLOW__CORE__DEFAULT_TIMEZONE
+      value: "America/New_York"
+    - name: AIRFLOW__WEBSERVER__DEFAULT_UI_TIMEZONE
+      value: "America/New_York"
+  secret:
+    - envName: DEFAULT_USER_PASSWORD
+      secretName: airflow-custom-secrets
+      secretKey: "airflow_user_password"
+  webserver:
+    extraVolumes:
+      - name: webserver-config-volume
+        configMap:
+          name: dps-platform-airflow-webserver-config
+    extraVolumeMounts:
+      - name: webserver-config-volume
+        mountPath: /opt/airflow/webserver_config.py
+        subPath: webserver_config.py
+      - name: webserver-config-volume
+        mountPath: /opt/airflow/webserver_config.yaml
+        subPath: webserver_config.yaml
+    podAnnotations:
+      ad.datadoghq.com/webserver.check_names: '["airflow"]'
+      ad.datadoghq.com/webserver.logs: '[{"source":"dps-airflow","service":"dps-airflow-webserver"}]'
+      ad.datadoghq.com/webserver.init_configs: "[{}]"
+      ad.datadoghq.com/webserver.instances: '[{"url": "http://%%host%%:8080", "tls_verify": "false"}]'
+    defaultUser:
+      password: $(DEFAULT_USER_PASSWORD)
+  scheduler:
+    podAnnotations:
+      ad.datadoghq.com/scheduler.check_names: '["airflow"]'
+      ad.datadoghq.com/scheduler.logs: '[{"source":"dps-airflow","service":"dps-airflow-scheduler"}]'
+      ad.datadoghq.com/scheduler.init_configs: "[{}]"
+    extraInitContainers:
+      - name: change-logs-owner
+        image: busybox
+        #Remove the -R option for now - see DP-281 for details
+        #command: ["sh", "-c", "chown -R 50000:0 /opt/airflow/logs"]
+        command: ["sh", "-c", "chown 50000:0 /opt/airflow/logs"]
+        securityContext:
+          runAsUser: 0
+        volumeMounts:
+          - name: logs
+            mountPath: /opt/airflow/logs
+  workers:
+    replicas: 3
+    podAnnotations:
+      ad.datadoghq.com/worker.check_names: '["airflow"]'
+      ad.datadoghq.com/worker.logs: '[{"source":"dps-airflow","service":"dps-airflow-worker"}]'
+      ad.datadoghq.com/worker.init_configs: "[{}]"
+    resources:
+      limits:
+        cpu: 6
+        memory: 32Gi
+      requests:
+        cpu: 0.75
+        memory: 1Gi
+  triggerer:
+    podAnnotations:
+      ad.datadoghq.com/triggerer.check_names: '["airflow"]'
+      ad.datadoghq.com/triggerer.logs: '[{"source":"dps-airflow","service":"dps-airflow-triggerer"}]'
+      ad.datadoghq.com/triggerer.init_configs: "[{}]"
+  flower:
+    podAnnotations:
+      ad.datadoghq.com/flower.check_names: '["airflow"]'
+      ad.datadoghq.com/flower.logs: '[{"source":"dps-airflow","service":"dps-airflow-flower"}]'
+      ad.datadoghq.com/flower.init_configs: "[{}]"
+  createUserJob:
+    command:
+      - "bash"
+      - "-c"
+      - |-
+        airflow users delete --username "{{ '{{ .Values.webserver.defaultUser.username }}' }}";
+        airflow users create "$@"
+      - "--"
+    args:
+      - "-r"
+      - "{{ '{{ .Values.webserver.defaultUser.role }}' }}"
+      - "-u"
+      - "{{ '{{ .Values.webserver.defaultUser.username }}' }}"
+      - "-e"
+      - "{{ '{{ .Values.webserver.defaultUser.email }}' }}"
+      - "-f"
+      - "{{ '{{ .Values.webserver.defaultUser.firstName }}' }}"
+      - "-l"
+      - "{{ '{{ .Values.webserver.defaultUser.lastName }}' }}"
+      - "-p"
+      - "{{ '{{ .Values.webserver.defaultUser.password }}' }}"
+  # Uncomment this setting to resolve db migration timeout error.
+  #migrateDatabaseJob:
+  #  useHelmHooks: false

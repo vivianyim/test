@@ -1,0 +1,104 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ include "dps-platform.fullname" . }}-dags-sync-cronjob
+spec:
+  schedule: "* * * * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  suspend: false
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      parallelism: 1
+      completions: 1
+      backoffLimit: 2
+      template:
+        spec:
+          restartPolicy: Never
+          securityContext:
+            fsGroup: 0
+          containers:
+          - name: python-processor
+            image: cicirello/pyaction:4.15.0
+            command:
+            - /bin/sh
+            - -c
+            - |
+              # This script will set up the ssh env for git and
+              # will clone the Hyak git repository.
+              # It will then execute a python script which syncs
+              # the dags from main branch with the EFS volume where
+              # Airflow mounts from in development environment.
+              # Any additional deployment requests will also be processed.
+              # These requests are created by Github workflow "Dag Sync Dev Env"
+
+              # set up ssh env for git
+              # copy the hyak git repo secrets to a local file
+              mkdir localsecret
+              cp /hyak-repo-keys/private/id_rsa localsecret
+              cp /hyak-repo-keys/public/id_rsa.pub localsecret
+
+              # restrict the permissions for the get repo secret
+              chmod 600 localsecret/id_rsa
+
+              # start the ssh-agent and add the new secret
+              eval `ssh-agent -s`
+              ssh-add -k localsecret/id_rsa
+
+              # configure ssh to not use strict host key checking
+              echo 'Host *' > /etc/ssh/ssh_config
+              echo 'StrictHostKeyChecking no' >> /etc/ssh/ssh_config
+
+              # clone the repo
+              git clone git@github.com:cafemedia/hyak.git; cd hyak;
+
+              # execute the python script which performs the dag synchronization
+              pip install boto3
+              python3 /scripts/dags-sync-script.py
+
+            env:
+              - name: AWS_ACCESS_KEY_ID
+                valueFrom:
+                  secretKeyRef:
+                    name: hyak-deployment-bucket-secrets
+                    key: hyak-deployment-user-access-key
+              - name: AWS_SECRET_ACCESS_KEY
+                valueFrom:
+                  secretKeyRef:
+                    name: hyak-deployment-bucket-secrets
+                    key: hyak-deployment-user-access-secret
+              - name: AWS_DEFAULT_REGION
+                value: us-east-1
+              - name: S3_PREFIX
+                value: {{ .Values.dagsDeploymentS3Prefix }}
+              - name: DEPLOYMENT_ENV
+                value: {{ .Values.deploymentEnv }}
+              - name: AWS_ACCOUNT
+                value: "{{ .Values.awsAccount }}"
+
+            volumeMounts:
+              - name: dags-sync-scripts
+                mountPath: /scripts
+                readOnly: true
+              - name: dags-remote-pv
+                mountPath: /opt/airflow/dags
+              - name: hyak-repo-keys-private
+                mountPath: /hyak-repo-keys/private
+                readOnly: true
+              - name: hyak-repo-keys-public
+                mountPath: /hyak-repo-keys/public
+                readOnly: true
+          volumes:
+          - name: dags-sync-scripts
+            configMap:
+              name: {{ include "dps-platform.fullname" . }}-dags-sync-scripts
+          - name: dags-remote-pv
+            persistentVolumeClaim:
+              claimName: {{ include "dps-platform.fullname" . }}-dags-remote-pvc
+          - name: hyak-repo-keys-private
+            secret:
+              secretName: hyak-repo-keys-private
+          - name: hyak-repo-keys-public
+            secret:
+              secretName: hyak-repo-keys-public

@@ -1,0 +1,8 @@
+montecarlo:
+  field_health:
+    - table: raw:google_analytics.daily_by_demographic_raw
+      timestamp_field: collection_timestamp
+      lookback_days: 7
+      aggregation_time_interval: day
+      labels:
+        - DPS

@@ -1,0 +1,9 @@
+_template: connection
+
+resource_name: mpm4_base__milestone1_milestone__c
+
+source: salesforce_prod
+destination: snowflake_airbyte
+status: active
+streams:
+  - name: MPM4_BASE__Milestone1_Milestone__c

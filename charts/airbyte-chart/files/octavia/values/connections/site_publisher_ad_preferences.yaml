@@ -1,0 +1,10 @@
+_template: connection
+
+resource_name: site_publisher_ad_preferences
+
+source: adthrive_postgres_looker_replica
+destination: snowflake_airbyte
+status: active
+streams:
+  - name: site_publisher_ad_preferences
+    namespace: public

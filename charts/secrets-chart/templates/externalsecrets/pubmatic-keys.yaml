@@ -1,0 +1,11 @@
+# External Secret
+apiVersion: 'kubernetes-client.io/v1'
+kind: ExternalSecret
+metadata:
+  name: pubmatic-keys-airflow
+  namespace: dps
+spec:
+  backendType: systemManager
+  data:
+    - key: /dps/key/extractor/pubmatic-credentials
+      name: pubmatic-credentials

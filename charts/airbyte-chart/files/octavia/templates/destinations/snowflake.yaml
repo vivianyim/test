@@ -1,0 +1,18 @@
+{%- extends "destination.yaml" %}
+{%- set definition_id = "424892c4-daac-4491-b35d-c6688ba547ba" %}
+{%- set definition_image = "airbyte/destination-snowflake" %}
+{%- set definition_version = "0.4.31" %}
+{%- block destination %}
+role: {{ role }}
+database: {{ database }}
+username: {{ username }}
+warehouse: {{ warehouse }}
+credentials:
+  password: "{{ password }}"
+host: {{ host }}
+schema: {{ schema }}
+loading_method:
+  method: {{ loading_method or "Standard" }}
+  encryption:
+    encryption_type: {{ encryption_type or "none" }}
+{%- endblock %}

@@ -1,0 +1,13 @@
+{{ if .Values.isLocal }}
+# External Secret
+apiVersion: 'kubernetes-client.io/v1'
+kind: ExternalSecret
+metadata:
+  name: keyword-recs-config
+  namespace: dps
+spec:
+  backendType: systemManager
+  data:
+    - key: aud.config.keyword.bucket
+      name: keyword-recs-bucket
+{{ end }}

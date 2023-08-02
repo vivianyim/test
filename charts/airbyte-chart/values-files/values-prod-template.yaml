@@ -1,0 +1,67 @@
+airbyteEnv: production
+
+octavia:
+  extraEnv:
+    - name: "SLICKSTREAM_MONGODB_URL_C01"
+      value: "107.21.156.174"
+    - name: "SLICKSTREAM_MONGODB_PORT_C01"
+      value: "44460"
+    - name: "SLICKSTREAM_MONGODB_URL_C02"
+      value: "107.21.156.174"
+    - name: "SLICKSTREAM_MONGODB_PORT_C02"
+      value: "44461"
+    - name: "SLICKSTREAM_MONGODB_URL_C03"
+      value: "107.21.156.174"
+    - name: "SLICKSTREAM_MONGODB_PORT_C03"
+      value: "44462"
+    - name: "SLICKSTREAM_MONGODB_URL_C04"
+      value: "107.21.156.174"
+    - name: "SLICKSTREAM_MONGODB_PORT_C04"
+      value: "44463"
+    - name: "SLICKSTREAM_MONGODB_URL_C05"
+      value: "107.21.156.174"
+    - name: "SLICKSTREAM_MONGODB_PORT_C05"
+      value: "44464"
+    - name: "SLICKSTREAM_MONGODB_URL_C06"
+      value: "107.21.156.174"
+    - name: "SLICKSTREAM_MONGODB_PORT_C06"
+      value: "44465"
+    - name: "SLICKSTREAM_MONGODB_URL_C07"
+      value: "107.21.156.174"
+    - name: "SLICKSTREAM_MONGODB_PORT_C07"
+      value: "44466"
+    - name: "SLICKSTREAM_MONGODB_URL_C08"
+      value: "107.21.156.174"
+    - name: "SLICKSTREAM_MONGODB_PORT_C08"
+      value: "44467"
+    - name: "SLICKSTREAM_MONGODB_URL_C09"
+      value: "107.21.156.174"
+    - name: "SLICKSTREAM_MONGODB_PORT_C09"
+      value: "44468"
+    - name: "SLICKSTREAM_MONGODB_URL_C10"
+      value: "107.21.156.174"
+    - name: "SLICKSTREAM_MONGODB_PORT_C10"
+      value: "44469"
+    - name: "SLICKSTREAM_MONGODB_URL_C11"
+      value: "107.21.156.174"
+    - name: "SLICKSTREAM_MONGODB_PORT_C11"
+      value: "44470"
+    - name: "SLICKSTREAM_MONGODB_URL_C12"
+      value: "107.21.156.174"
+    - name: "SLICKSTREAM_MONGODB_PORT_C12"
+      value: "44471"
+    - name: "SLICKSTREAM_MONGODB_URL_C13"
+      value: "107.21.156.174"
+    - name: "SLICKSTREAM_MONGODB_PORT_C13"
+      value: "44472"
+    - name: "S3_AWS_ACCOUNT"
+      value: "233585098807"
+
+airbyte:
+  webapp:
+    ingress:
+      hosts:
+        - host: airbyte.production.cafemedia.com
+          paths:
+            - path: /
+              pathType: ImplementationSpecific

@@ -1,0 +1,27 @@
+montecarlo:
+  custom_sql:
+    - sql: |
+        SELECT
+        COUNT(*) as row_count
+        FROM  ANALYTICS.ADTHRIVE.SITE_JW_ANALYTIC
+        WHERE date = DATEADD('day', -2, DATEADD('hour', 14, CURRENT_DATE()::TIMESTAMP)::DATE);
+      query_result_type: SINGLE_NUMERIC
+      name: Alert - JW-Analytic-Data-Available
+      description: Alert JW Analytic missing data
+      notes: |
+        Returns a count of the number of rows for the day
+        There is missing data for JW Player A.
+        This relates to the following table in Snowflake:
+        * analytics.adthrive.site_jw_analytic
+        glue job (Adthrive AWS Account): https://console.aws.amazon.com/glue/home?region=us-east-1#trigger:name=site-jw-analytic 
+        We will need to investigate and possibly rerun collection. Follow this guide: https://cafemedia.atlassian.net/wiki/spaces/DPS/pages/1390772314/JW+Player+-+Analytics#Alert-Data-Unavailable-in-Postgres%3A
+      comparisons:
+        - type: threshold
+          operator: EQ
+          threshold_value: 0
+      schedule:
+        type: fixed
+        start_time: "2022-10-12T14:30:00"
+        interval_minutes: 1440
+      labels:
+        - DPS

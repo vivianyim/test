@@ -1,0 +1,10 @@
+{%- extends "resource.yaml" %}
+{%- block resource1 %}
+definition_id: {{ definition_id }}
+definition_image: {{ definition_image }}
+definition_version: {{ definition_version }}
+{%- endblock %}
+{%- block resource2 %}
+{%- block vertex %}
+{%- endblock %}
+{%- endblock %}

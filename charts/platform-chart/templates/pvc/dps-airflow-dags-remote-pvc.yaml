@@ -1,0 +1,25 @@
+{{ if .Values.isLocal}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "dps-platform.fullname" . }}-dags-remote-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: {{ include "dps-platform.fullname" . }}-dags-local-test
+  resources:
+    requests:
+      storage: 1Gi
+{{ else }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "dps-platform.fullname" . }}-dags-remote-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: {{ include "dps-platform.fullname" . }}-dags-efs
+  resources:
+    requests:
+      storage: 5Gi
+{{ end }}

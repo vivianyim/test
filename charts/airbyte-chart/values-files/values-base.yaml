@@ -1,0 +1,228 @@
+# These are set globally due to, e.g., deployment.yaml of
+# airbyte-webapp looking globally while setting AWS credentials.
+global:
+  image:
+    tag: 0.41.0
+  state:
+    storage:
+      type: "S3"
+  minio:
+    enabled: false
+  logs:
+    accessKey:
+      existingSecret: dps-platform-airbyte-airbyte-secrets
+      existingSecretKey: logs_access_key
+    secretKey:
+      existingSecret: dps-platform-airbyte-airbyte-secrets
+      existingSecretKey: logs_secret_key
+    storage:
+      type: "S3"
+    minio:
+      enabled: false
+    s3:
+      enabled: true
+      bucketRegion: "us-east-1"
+      bucket: {{ airbyte_log_bucket_name.value }}
+  jobs:
+    kube:
+      annotations:
+        iam.amazonaws.com/role: system/hyak-role
+        ad.datadoghq.com/main.check_names: '["airbyte"]'
+        ad.datadoghq.com/main.init_configs: '[{}]'
+        ad.datadoghq.com/main.instances: '[{"url": "%%host%%", "tls_verify": "false"}]'
+        ad.datadoghq.com/main.logs: '[{"source":"airbyte","service":"airbyte-job"}]'
+  check_jobs:
+    kube:
+      annotations:
+        iam.amazonaws.com/role: system/hyak-role
+        ad.datadoghq.com/main.check_names: '["airbyte"]'
+        ad.datadoghq.com/main.init_configs: '[{}]'
+        ad.datadoghq.com/main.instances: '[{"url": "%%host%%", "tls_verify": "false"}]'
+        ad.datadoghq.com/main.logs: '[{"source":"airbyte","service":"airbyte-check-job"}]'
+
+airbyte:
+  metrics:
+    resources:
+      limits:
+        cpu: 10m
+        memory: 859Mi
+      requests:
+        cpu: 4m
+        memory: 540Mi
+    image:
+      tag: 0.40.3
+    enabled: true
+    extraEnv:
+      - name: METRIC_CLIENT
+        value: datadog
+      - name: DD_AGENT_HOST
+        value: datadog-agent-cluster-agent.monitoring
+      - name: DD_DOGSTATSD_PORT
+        value: "5005"
+      - name: PUBLISH_METRICS
+        value: "true"
+  enabled: true
+  ## @section Webapp Parameters
+  jobs:
+    kube:
+      annotations:
+        iam.amazonaws.com/role: system/hyak-role
+        ad.datadoghq.com/main.check_names: '["airbyte"]'
+        ad.datadoghq.com/main.init_configs: '[{}]'
+        ad.datadoghq.com/main.instances: '[{"url": "%%host%%", "tls_verify": "false"}]'
+        ad.datadoghq.com/main.logs: '[{"source":"airbyte","service":"airbyte-job-worker"}]'
+  webapp:
+    resources:
+      limits:
+        cpu: 2m
+        memory: 51Mi
+      requests:
+        cpu: 1m
+        memory: 20Mi
+    ## Configure the ingress resource that allows you to access the Airbyte installation.
+    ## ref: http://kubernetes.io/docs/user-guide/ingress/
+    ## @param webapp.ingress.enabled Set to true to enable ingress record generation
+    ## @param webapp.ingress.className Specifies ingressClassName for clusters >= 1.18+
+    ## @param webapp.ingress.annotations [object] Ingress annotations done as key:value pairs
+    ## @param webapp.ingress.hosts The list of hostnames to be covered with this ingress record.
+    ## @param webapp.ingress.tls [array] Custom ingress TLS configuration
+    podAnnotations:
+      dps-platform-chart-version: {{ env['TAG_VERSION'] }}
+      ad.datadoghq.com/airbyte-webapp-container.check_names: '["airbyte"]'
+      ad.datadoghq.com/airbyte-webapp-container.init_configs: '[{}]'
+      ad.datadoghq.com/airbyte-webapp-container.instances: '[{"url": "%%host%%", "tls_verify": "false"}]'
+      ad.datadoghq.com/airbyte-webapp-container.logs: '[{"source":"airbyte","service":"airbyte-webapp"}]'
+    ingress:
+      enabled: true
+      className: ""
+      annotations:
+        nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+        kubernetes.io/ingress.class: nginx
+        nginx.ingress.kubernetes.io/auth-type: basic
+        nginx.ingress.kubernetes.io/auth-secret: dps-platform-airbyte-airbyte-secrets
+        nginx.ingress.kubernetes.io/auth-realm: "Authentication Required"
+        # The first CIDR allows Airflow to trigger Airbyte syncs.
+        nginx.ingress.kubernetes.io/whitelist-source-range: "0.0.0.0/0,73.140.102.233/32,24.254.157.32/32,99.88.44.219/32,100.33.160.116/32,99.54.143.170/32,99.45.14.199/32,75.46.225.86/32,73.63.165.27/32,71.105.239.57/32,168.91.246.213/32,52.124.33.116/32"
+    nodeSelector:
+      kops.k8s.io/instancegroup: dps
+    readinessProbe:
+      periodSeconds: 30
+      timeoutSeconds: 5
+  pod-sweeper:
+    resources:
+      limits:
+        cpu: 159m
+        memory: 50Mi
+      requests:
+        cpu: 40m
+        memory: 11Mi
+  worker:
+    resources:
+      limits:
+        cpu: 684m
+        memory: 22237Mi
+      requests:
+        cpu: 165m
+        memory: 6612Mi
+    podAnnotations:
+      iam.amazonaws.com/role: system/hyak-role
+      dps-platform-chart-version: {{ env['TAG_VERSION'] }}
+      ad.datadoghq.com/airbyte-worker-container.check_names: '["airbyte"]'
+      ad.datadoghq.com/airbyte-worker-container.init_configs: '[{}]'
+      ad.datadoghq.com/airbyte-worker-container.instances: '[{"url": "%%host%%", "tls_verify": "false"}]'
+      ad.datadoghq.com/airbyte-worker-container.logs: '[{"source":"airbyte","service":"airbyte-worker"}]'
+    nodeSelector:
+      kops.k8s.io/instancegroup: dps
+  temporal:
+    resources:
+      limits:
+        cpu: 1128m
+        memory: 445Mi
+      requests:
+        cpu: 149m
+        memory: 162Mi
+    podAnnotations:
+      dps-platform-chart-version: {{ env['TAG_VERSION'] }}
+      ad.datadoghq.com/airbyte-temporal.check_names: '["airbyte"]'
+      ad.datadoghq.com/airbyte-temporal.init_configs: '[{}]'
+      ad.datadoghq.com/airbyte-temporal.instances: '[{"url": "%%host%%", "tls_verify": "false"}]'
+      ad.datadoghq.com/airbyte-temporal.logs: '[{"source":"airbyte","service":"airbyte-temporal"}]'
+    nodeSelector:
+      kops.k8s.io/instancegroup: dps
+    livenessProbe:
+      enabled: true
+    readinessProbe:
+      enabled: true
+  cron:
+    resources:
+      limits:
+        cpu: 100m
+        memory: 1445Mi
+      requests:
+        cpu: 12m
+        memory: 885Mi
+  podSweeper:
+    podAnnotations:
+      dps-platform-chart-version: {{ env['TAG_VERSION'] }}
+      ad.datadoghq.com/airbyte-pod-sweeper.check_names: '["airbyte"]'
+      ad.datadoghq.com/airbyte-pod-sweeper.init_configs: '[{}]'
+      ad.datadoghq.com/airbyte-pod-sweeper.instances: '[{"url": "%%host%%", "tls_verify": "false"}]'
+      ad.datadoghq.com/airbyte-pod-sweeper.logs: '[{"source":"airbyte","service":"airbyte-podsweeper"}]'
+    nodeSelector:
+      kops.k8s.io/instancegroup: dps
+  server:
+    resources:
+      limits:
+        cpu: 599m
+        memory: 5019Mi
+      requests:
+        cpu: 88m
+        memory: 1768Mi
+    podAnnotations:
+      dps-platform-chart-version: {{ env['TAG_VERSION'] }}
+      ad.datadoghq.com/airbyte-server-container.check_names: '["airbyte"]'
+      ad.datadoghq.com/airbyte-server-container.init_configs: '[{}]'
+      ad.datadoghq.com/airbyte-server-container.instances: '[{"url": "%%host%%", "tls_verify": "false"}]'
+      ad.datadoghq.com/airbyte-server-container.logs: '[{"source":"airbyte","service":"airbyte-server"}]'
+    nodeSelector:
+      kops.k8s.io/instancegroup: dps
+    livenessProbe:
+      periodSeconds: 30
+      timeoutSeconds: 5
+    readinessProbe:
+      periodSeconds: 30
+      timeoutSeconds: 5
+  scheduler:
+    podAnnotations:
+      dps-platform-chart-version: {{ env['TAG_VERSION'] }}
+      ad.datadoghq.com/airbyte-scheduler-container.check_names: '["airbyte"]'
+      ad.datadoghq.com/airbyte-scheduler-container.init_configs: '[{}]'
+      ad.datadoghq.com/airbyte-scheduler-container.instances: '[{"url": "%%host%%", "tls_verify": "false"}]'
+      ad.datadoghq.com/airbyte-scheduler-container.logs: '[{"source":"airbyte","service":"airbyte-scheduler"}]'
+    nodeSelector:
+      kops.k8s.io/instancegroup: dps
+  postgresql:
+    enabled: false
+
+    ## External PostgreSQL configuration
+    ## All of these values are only used when postgresql.enabled is set to false
+    ## @param externalDatabase.host Database host
+    ## @param externalDatabase.user non-root Username for Airbyte Database
+    ## @param externalDatabase.password Database password
+    ## @param externalDatabase.existingSecret Name of an existing secret resource containing the DB password
+    ## @param externalDatabase.existingSecretPasswordKey Name of an existing secret key containing the DB password
+    ## @param externalDatabase.database Database name
+    ## @param externalDatabase.port Database port number
+    ##
+  externalDatabase:
+    host: {{ airbyte_rds_hostname.value }}
+    user: airbyte
+    existingSecret: dps-platform-airbyte-airbyte-secrets
+    existingSecretPasswordKey: db_password
+    database: airbyte
+    port: 5432
+
+
+dpsAirbyte:
+  enableEfsPV: true
+  efsId: {{ airbyte_efs.value }}

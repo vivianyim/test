@@ -1,0 +1,26 @@
+montecarlo:
+  custom_sql:
+  - sql: |
+      SELECT COUNT(*) FROM SNOWFLAKE.ACCOUNT_USAGE.COPY_HISTORY 
+      WHERE TABLE_NAME = 'ADS_LOGGER'
+      AND STATUS != 'Loaded' AND STATUS != 'Load in progress'
+      AND LAST_LOAD_TIME >= DATEADD(HOURS, -1, CURRENT_TIMESTAMP());
+    name: Alert - Data Load failed for Adslogger
+    description: Alert when Adslogger Data is not being loaded correctly from S3 to Snowflake
+    labels:
+    - DPS
+    notify_rule_run_failure: true
+    sampling_sql: |
+      SELECT * FROM SNOWFLAKE.ACCOUNT_USAGE.COPY_HISTORY 
+      WHERE table_name = 'ADS_LOGGER'
+      AND LAST_LOAD_TIME >= DATEADD(HOURS, -1, CURRENT_TIMESTAMP());
+    schedule:
+      type: fixed
+      interval_minutes: 30
+      start_time: '2023-06-15T15:16:14.786000+00:00'
+      timezone: UTC
+    event_rollup_until_changed: true
+    comparisons:
+    - type: threshold
+      operator: GT
+      threshold_value: 0.0

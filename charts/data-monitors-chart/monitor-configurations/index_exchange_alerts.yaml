@@ -1,0 +1,184 @@
+montecarlo:
+  custom_sql:
+    - sql: |
+        SELECT COUNT(*)
+        FROM ANALYTICS.IX.NEW_X1_SECTION_STATS
+        WHERE day = DATEADD('days', -1, CURRENT_DATE);
+      query_result_type: SINGLE_NUMERIC
+      name: Alert - Index Exchange New-X1-Section-Stats missing data
+      description: Alert - Index Exchange New-X1-Section-Stats missing data
+      notes: |
+        Index Exchange New-X1-Section-Stats data is not present.
+        Rubook - https://cafemedia.atlassian.net/wiki/spaces/DPS/pages/1383628999/Index+Exchange+NEW+X1+Deals+RunBook
+      comparisons:
+        - type: threshold
+          operator: EQ
+          threshold_value: 0
+      schedule:
+        type: fixed
+        start_time: "2022-10-12T17:30:00"
+        interval_minutes: 1440
+      labels:
+        - DPS
+
+    - sql: |
+        SELECT COUNT(*)
+        FROM ANALYTICS.IX.NEW_X1_DEALS_ROUNDEL
+        WHERE day = DATEADD('days', -1, CURRENT_DATE);
+      query_result_type: SINGLE_NUMERIC
+      name: Alert - Index Exchange New-X1-Deals-Roundel missing data
+      description: Alert - Index Exchange New-X1-Deals-Roundel missing data
+      notes: |
+        Index Exchange New-X1-Deals-Roundel data is not present.
+        Rubook - https://cafemedia.atlassian.net/wiki/spaces/DPS/pages/1383628999/Index+Exchange+NEW+X1+Deals+RunBook
+      comparisons:
+        - type: threshold
+          operator: EQ
+          threshold_value: 0
+      schedule:
+        type: fixed
+        start_time: "2022-10-12T17:30:00"
+        interval_minutes: 1440
+      labels:
+        - DPS
+
+    - sql: |
+        SELECT COUNT(*)
+        FROM ANALYTICS.IX.NEW_X1_DEALS
+        WHERE day = DATEADD('days', -1, CURRENT_DATE);
+      query_result_type: SINGLE_NUMERIC
+      name: Alert - Index Exchange New-X1-Deals missing data
+      description: Alert - Index Exchange New-X1-Deals missing data
+      notes: |
+        Index Exchange New-X1-Deals data is not present.
+        Rubook - https://cafemedia.atlassian.net/wiki/spaces/DPS/pages/1383628999/Index+Exchange+NEW+X1+Deals+RunBook
+      comparisons:
+        - type: threshold
+          operator: EQ
+          threshold_value: 0
+      schedule:
+        type: fixed
+        start_time: "2022-10-12T17:30:00"
+        interval_minutes: 1440
+      labels:
+        - DPS
+
+    - sql: |
+        SELECT current_date - max(day) AS DAYS_SINCE_DATA 
+        FROM ANALYTICS.IX.NEW_X1_DEALS;
+      query_result_type: SINGLE_NUMERIC
+      name: Alert - IX-NEW_X1_DEALS-NumDaysZeroData
+      description: Alert - IX-NEW_X1_DEALS-NumDaysZeroData
+      notes: |
+        Index Exchange New-X1-Deals number of days with no data.
+        Rubook - https://cafemedia.atlassian.net/wiki/spaces/DPS/pages/1383628999/Index+Exchange+NEW+X1+Deals+RunBook
+      comparisons:
+        - type: threshold
+          operator: GT
+          threshold_value: 4
+      schedule:
+        type: fixed
+        start_time: "2022-10-12T04:15:00"
+        interval_minutes: 1440
+      labels:
+        - DPS
+
+    - sql: |
+        WITH dates AS (
+          SELECT dateadd('day', -value, current_date) AS date 
+          FROM table(flatten(input => array_construct(1)))
+        ),
+        date_hours AS (
+          SELECT 
+            date, 
+            value AS hour 
+          FROM table(flatten(INPUT => ARRAY_CONSTRUCT(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23)))
+          CROSS JOIN dates
+        ),
+        report AS (
+          SELECT 
+            date, 
+            extract(hour from timestamp) AS hour, 
+            count(*) AS n 
+          FROM ANALYTICS.IX.CAL_IMPRESSION_EVENT
+          WHERE date IN (SELECT date FROM dates) 
+          GROUP BY 1, 2
+        ),
+        alerts AS (
+          SELECT 
+            date_hours.date, 
+            date_hours.hour, 
+            coalesce(n,0) AS n 
+          FROM date_hours 
+          LEFT JOIN report ON date_hours.date = report.date 
+          AND date_hours.hour = report.hour
+        )
+        SELECT cast(count (*) > 0 as int) AS data_not_exists 
+        FROM alerts 
+        WHERE n = 0;
+      query_result_type: SINGLE_NUMERIC
+      name: Alert - IX-CAL_IMPRESSION_EVENT-ZeroData
+      description: Alert - IX-CAL_IMPRESSION_EVENT-ZeroData
+      notes: |
+        Index Exchange CAL_IMPRESSION_EVENT - ZeroData
+        Rubook - https://cafemedia.atlassian.net/wiki/spaces/DPS/pages/1495007356/Index+Exchange+IX+CLIENT+AUDIT+LOGS+CAL+IMPRESSION+EVENTS
+      comparisons:
+        - type: threshold
+          operator: GT
+          threshold_value: 0
+      schedule:
+        type: fixed
+        start_time: "2022-10-12T16:00:00"
+        interval_minutes: 1440
+      labels:
+        - DPS
+
+    - sql: |
+        WITH dates AS (
+          SELECT dateadd('day',-value,current_date) AS date
+          FROM table(flatten(input => array_construct(1)))
+        ),
+        date_hours AS (
+          SELECT
+            date,
+            value AS hour
+          FROM table(flatten(INPUT => ARRAY_CONSTRUCT(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23)))
+          CROSS JOIN dates
+        ),
+        report AS (
+          SELECT
+            date,
+            extract(hour FROM timestamp) AS hour,
+            count(*) AS n
+          FROM ANALYTICS.IX.CAL_BID_EVENT
+          WHERE date IN (SELECT date FROM dates)
+          GROUP BY 1, 2
+        ),
+        alerts AS (
+          SELECT
+            date_hours.date,
+            date_hours.hour,
+            coalesce(n,0) AS n
+          FROM date_hours
+          LEFT JOIN report ON date_hours.date=report.date
+          AND date_hours.hour=report.hour
+        )
+        SELECT cast(count(*) > 0 AS int) AS data_not_exists
+        FROM alerts
+        WHERE n = 0;
+      query_result_type: SINGLE_NUMERIC
+      name: Alert - Index Exchange CAL_BID_EVENT missing data
+      description: Alert - Index Exchange CAL_BID_EVENT missing data
+      notes: |
+        Index Exchange CAL_BID_EVENT data is not present.
+        Rubook - https://cafemedia.atlassian.net/wiki/spaces/DPS/pages/763658277/Index+Exchange+Bid+Events
+      comparisons:
+        - type: threshold
+          operator: GT
+          threshold_value: 0
+      schedule:
+        type: fixed
+        start_time: "2022-10-12T16:00:00"
+        interval_minutes: 1440
+      labels:
+        - DPS

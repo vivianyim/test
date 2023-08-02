@@ -1,0 +1,7 @@
+apiVersion: v2
+name: dps-platform 
+description: Helm Chart to Deploy Hyak Platform
+type: application
+version: 1.0.0
+
+

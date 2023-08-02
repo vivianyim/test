@@ -1,0 +1,42 @@
+{{ if .Values.dpsAirflow.executeMarmaladeJob}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "dps-platform-airflow.fullname" . }}-marmalade-trigger-job
+  labels:
+    tags.datadoghq.com/env: development
+    tags.datadoghq.com/service: marmalade-ad-campaigns-job
+    tags.datadoghq.com/version: 1.0.0
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-weight: "3"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded,hook-failed
+spec:
+  template:
+    metadata:
+      labels:
+        tags.datadoghq.com/env: development
+        tags.datadoghq.com/service: marmalade-ad-campaigns-job
+        tags.datadoghq.com/version: 1.0.0
+    spec:
+      restartPolicy: Never
+      securityContext:
+        runAsUser: 50000
+        fsGroup: 0
+        runAsGroup: 0
+      containers:
+        - name: marmalade-trigger-job
+          image: {{.Values.airflow.images.airflow.repository}}:{{.Values.airflow.images.airflow.tag}}
+          imagePullPolicy: IfNotPresent
+          command: [ "/bin/bash", "-c", "--" ]
+          args: [ "currentDate=$(date -u +'%Y-%m-%d %T' --date='+300 seconds');airflow dags trigger sync_import_marmalade_ad_campaigns -e  \"${currentDate} UTC\";" ]
+          envFrom:
+            - configMapRef:
+                name: '{{ include "dps-platform-airflow.fullname" . }}-variables'
+          env:
+          - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "dps_airflow_metadata_secret" . }}
+                key: connection
+{{ end }}

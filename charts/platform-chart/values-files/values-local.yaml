@@ -1,0 +1,6 @@
+isLocal: true
+
+
+dagsDeploymentS3Prefix: local-test
+deploymentEnv: "local"
+awsAccount: "312505582686"

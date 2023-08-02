@@ -1,0 +1,38 @@
+montecarlo:
+  custom_sql:
+    - sql: |
+        WITH by_source AS (
+          SELECT
+            site_id,
+            page_path,
+            traffic_source,
+            BOOLOR_AGG(has_gamlog_data) AS has_gamlog,
+            BOOLOR_AGG(has_ga_data) AS has_ga
+          FROM ANALYTICS.RPM.VW_BASE
+          WHERE date = DATEADD('days', -2, CURRENT_DATE)
+          GROUP BY site_id, page_path, traffic_source 
+        ), 
+        row_count_and_matches AS (
+            SELECT 
+              COUNT(*) AS row_count,
+              SUM(CAST(has_gamlog AND has_ga AS INT)) AS matches
+            FROM by_source
+        )
+        SELECT 100 * matches / row_count AS percent_match
+        FROM row_count_and_matches;
+      query_result_type: SINGLE_NUMERIC
+      name: Alert - RPM Base Low Match Rate
+      description: Alert - Low Match Rate In RPM Base PERCENT_MATCH < 0.25
+      notes: |
+        Match rate in RPM.BASE is less than 25 percent - possible negative impact on publisher dashboard RPM functionality.
+        Reference - https://airflow-dps.production.cafemedia.com/dags/site_performance_daily
+      comparisons:
+        - type: threshold
+          operator: LT
+          threshold_value: 0.25
+      schedule:
+        type: fixed
+        start_time: "2022-10-12T12:00:00"
+        interval_minutes: 1440
+      labels:
+        - DPS

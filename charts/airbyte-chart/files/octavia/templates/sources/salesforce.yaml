@@ -1,0 +1,10 @@
+{%- extends "source.yaml" %}
+{%- set definition_id = "b117307c-14b6-41aa-9422-947e34922962" %}
+{%- set definition_image = "airbyte/source-salesforce" %}
+{%- set definition_version = "1.0.11" %}
+{%- block source %}
+auth_type: {{ auth_type }}
+client_id: {{ client_id }}
+client_secret: {{ client_secret }}
+refresh_token: {{ refresh_token }}
+{%- endblock %}

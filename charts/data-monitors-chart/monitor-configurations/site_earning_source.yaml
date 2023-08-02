@@ -1,0 +1,33 @@
+montecarlo:
+  freshness:
+    - table: raw.adthrive.site_earning_source
+      name: check for raw site_earning_source data available by 9:30 AM ET
+      freshness_threshold: 240
+      description: Checks to see if RAW SITE_EARNING_SOURCE data is updated on that morning
+      schedule:
+        type: fixed
+        start_time: "2022-12-16T13:30:00"
+        interval_minutes: 1440
+      labels:
+        - DPS
+  custom_sql:
+    - sql: |
+        SELECT COUNT(*)
+        FROM ANALYTICS.ADTHRIVE.SITE_EARNING_SOURCE
+        WHERE date = CURRENT_DATE - 1;
+      query_result_type: SINGLE_NUMERIC
+      name: Alert - ANALYTICS.ADTHRIVE.SITE_EARNING_SOURCE Data Exists by 9:30 AM EST
+      description: Alert if there is no Site Earning Source Data for the prior day.
+      notes: |
+        Site Earning Source Data must be present up to 1 day ago.
+      comparisons:
+        - type: threshold
+          operator: EQ
+          threshold_value: 0
+      schedule:
+        type: fixed
+        start_time: "2022-12-15T13:30:00"
+        interval_minutes: 1440
+      labels:
+        - DPS
+        - DPS-pagerduty

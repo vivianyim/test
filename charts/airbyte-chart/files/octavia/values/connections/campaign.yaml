@@ -1,0 +1,9 @@
+_template: connection
+
+resource_name: campaign
+
+source: salesforce_prod
+destination: snowflake_airbyte
+status: active
+streams:
+  - name: Campaign

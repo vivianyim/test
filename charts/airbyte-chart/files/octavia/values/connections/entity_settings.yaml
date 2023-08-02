@@ -1,0 +1,10 @@
+_template: connection
+
+resource_name: entity_settings
+
+source: adthrive_postgres_looker_replica
+destination: snowflake_airbyte
+status: active
+streams:
+  - name: entity_settings
+    namespace: public

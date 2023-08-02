@@ -1,0 +1,20 @@
+montecarlo:
+  custom_sql:
+    - sql: |
+        SELECT COUNT(*) FROM ANALYTICS.ADS_LOGGER.VW_ADSLOGGER_RAW
+        WHERE DATE_TRUNC('HOUR', DATETIME) >= DATE_TRUNC('HOUR', DATEADD(hour, -6, CURRENT_TIMESTAMP()));
+      query_result_type: SINGLE_NUMERIC
+      name: Alert - Adslogger-Raw Zero Data
+      description: Alert if there is no Adslogger data for the last 6 hours.
+      notes: For more information on Adslogger infrastructure, see https://cafemedia.atlassian.net/wiki/spaces/DPS/pages/2456879105/Snowflake-First+AdsLogger
+      comparisons:
+        - type: threshold
+          operator: EQ
+          threshold_value: 0
+      schedule:
+        type: fixed
+        start_time: "2022-10-12T00:00:00"
+        interval_minutes: 60
+      labels:
+        - DPS
+        - DPS-pagerduty

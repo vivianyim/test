@@ -1,0 +1,20 @@
+# use this pod as a helper to open a shell and 
+# to examine the dags efs volume in dev env
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "dps-platform.fullname" . }}-volume-helper-dags-efs
+spec:
+  containers:
+  - name: volume-helper
+    image: busybox
+    command: ['sleep', '3600']
+    volumeMounts:
+    - mountPath: /opt/airflow/dags
+      name: dags-remote-pv
+  volumes:
+  - name: dags-remote-pv
+    persistentVolumeClaim:
+      claimName: {{ include "dps-platform.fullname" . }}-dags-remote-pvc
+

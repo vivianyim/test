@@ -1,0 +1,12 @@
+# This yaml file creates variables used in local kubernetes environments.
+
+airflow:
+  extraConfigMaps:
+    '{{ include "dps-platform-airflow.fullname" . }}-variables':
+      data: |
+        AIRFLOW_VAR_IN_CLUSTER: "True"
+        AIRFLOW_VAR_RUN_AS_USER: "airflow"
+
+  extraEnvFrom: |
+    - configMapRef:
+        name: '{{ include "dps-platform-airflow.fullname" . }}-variables'

@@ -1,0 +1,57 @@
+_template: connection
+
+resource_name: site_earning_source
+
+source: adthrive_postgres_master_airbyte_service_user_standard
+destination: snowflake_airbyte
+status: active
+namespace_format: ADTHRIVE
+operator_type: normalization
+streams:
+  - name: site_earning_source
+    namespace: public
+    destination_sync_mode: append
+    sync_mode: incremental
+    cursor_field: updated_at
+    properties:
+      ad_network_id:
+        type: string
+      ad_unit:
+        type: string
+      clicks:
+        type: number
+      created_at:
+        airbyte_type: timestamp_with_timezone
+        format: date-time
+        type: string
+      date:
+        format: date
+        type: string
+      device:
+        type: string
+      earnings:
+        type: number
+      gross_earnings:
+        type: number
+      impression_opportunities:
+        type: number
+      impressions:
+        type: number
+      manual:
+        type: boolean
+      measurable_impressions:
+        type: number
+      note:
+        type: string
+      site_id:
+        type: string
+      source:
+        type: string
+      unfilled_impressions:
+        type: number
+      updated_at:
+        airbyte_type: timestamp_with_timezone
+        format: date-time
+        type: string
+      viewable_impressions:
+        type: number

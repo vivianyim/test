@@ -1,0 +1,10 @@
+_template: connection
+
+resource_name: ad_page_campaign
+
+source: adthrive_postgres_looker_replica
+destination: snowflake_airbyte
+status: active
+streams:
+  - name: ad_page_campaign
+    namespace: public

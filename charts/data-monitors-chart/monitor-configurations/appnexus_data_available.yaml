@@ -1,0 +1,49 @@
+montecarlo:
+  custom_sql:
+    - sql: |
+        WITH
+        seller_fill AS (
+        SELECT COUNT(*) as ct
+        FROM ANALYTICS.APPNEXUS.VW_SELLER_FILL_AND_DELIVERY
+        WHERE hour > DATEADD('days', -3, CURRENT_TIMESTAMP())
+        ),
+        key_value AS (
+        SELECT COUNT(*) as ct
+        FROM ANALYTICS.APPNEXUS.VW_KEY_VALUE
+        WHERE hour > DATEADD('days', -3, CURRENT_TIMESTAMP())
+        ),
+        network_analytics AS (
+        SELECT COUNT(*) as ct
+        FROM ANALYTICS.APPNEXUS.VW_NETWORK_ANALYTICS
+        WHERE hour > DATEADD('days', -3, CURRENT_TIMESTAMP())
+        ),
+        seller_brand_review AS (
+        SELECT COUNT(*) as ct
+        FROM ANALYTICS.APPNEXUS.VW_SELLER_BRAND_REVIEW
+        WHERE date > DATEADD('days', -5, CURRENT_DATE())
+        )
+        SELECT
+          (network_analytics.ct > 0 AND key_value.ct > 0 AND seller_fill.ct > 0 AND seller_brand_review.ct > 0)::INT as data_present
+        FROM network_analytics, key_value, seller_fill, seller_brand_review;
+      query_result_type: SINGLE_NUMERIC
+      name: Alert - Appnexus-Data-Available
+      description: Alert if Appnexus data is missing within the last 2 days
+      notes: |
+        Returns 1 if some data exists in all tables, and 0 otherwise
+        There is missing data for yesterday for Appnexus.
+        This may relate to any of these views in Snowflake:
+        * appnexus.vw_seller_fill_and_delivery
+        * appnexus.vw_network_analytics
+        * appnexus.vw_key_value
+        scraper job: https://github.com/cafemedia/adthrive-dps-data/blob/master/src/jobs/appNexus/README.md
+        We will need to investigate and possibly rerun collection. Follow this guide: https://cafemedia.atlassian.net/wiki/spaces/DPS/pages/1382547486/AppNexus+Xandr#Alert---Missing-Data-Check-(no-data-within-our-expected-time-range)%3A
+      comparisons:
+        - type: threshold
+          operator: LT
+          threshold_value: 1
+      schedule:
+        type: fixed
+        start_time: "2022-10-12T00:00:00"
+        interval_minutes: 360
+      labels:
+        - DPS

@@ -1,0 +1,14 @@
+# External Secret
+# Creates and syncronizes a Kubernetes secret using a backend storage source
+apiVersion: 'kubernetes-client.io/v1'
+kind: ExternalSecret
+metadata:
+  name: magnite-keys-airflow
+  namespace: dps
+spec:
+  backendType: systemManager
+  data:
+    - key: /dps/key/extractor/magnite-api-key
+      name: api-key
+    - key: /dps/key/extractor/magnite-api-secret
+      name: api-secret

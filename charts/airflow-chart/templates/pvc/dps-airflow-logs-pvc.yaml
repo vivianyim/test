@@ -1,0 +1,26 @@
+{{ if .Values.isLocal }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "dps-platform-airflow.fullname" . }}-logs-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: manual
+{{ else if .Values.dpsAirflow.enableLogsEfsPV}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "dps-platform-airflow.fullname" . }}-logs-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: efs-sc # It is defined in k8s-state.
+  resources:
+    requests:
+      storage: 5Gi
+
+{{ end }}

@@ -1,0 +1,19 @@
+{%- extends "destination.yaml" %}
+{%- set definition_id = "4816b78f-1489-44c1-9060-4b19d5fa9362" %}
+{%- set definition_image = "airbyte/destination-s3" %}
+{%- set definition_version = "0.3.10" %}
+{%- block destination %}
+{%- if ("IS_LOCAL" | getenv) == "True" %}
+access_key_id: {{ access_key_id }}
+secret_access_key: {{ secret_access_key }}
+{%- endif %}
+s3_bucket_name: {{ s3_bucket_name }}
+s3_bucket_path: {{ s3_bucket_path }}
+s3_bucket_region: {{ s3_bucket_region }}
+format:
+  format_type: {{ format_type }}
+  compression:
+    compression_type: {{ compression_type }}
+    flattening: {{ flattening }}
+s3_path_format: {{ s3_path_format }}
+{%- endblock %}

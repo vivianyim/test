@@ -1,0 +1,16 @@
+# External Secret
+# Creates and syncronizes a Kubernetes secret using a backend storage source
+apiVersion: 'kubernetes-client.io/v1'
+kind: ExternalSecret
+metadata:
+  name: slack-webhooks-airflow
+  namespace: dps
+spec:
+  backendType: systemManager
+  data:
+    - key: /dps/slack/data-validation-webhook
+      name: data-validation-wizard
+    - key: /dps/slack/webhook-data-platform-alerts
+      name: data-platform-alerts
+    - key: /dps/slack/google-search-console-slack-webhook
+      name: google-search-console-slack-webhook

@@ -1,0 +1,11 @@
+# External Secret
+apiVersion: 'kubernetes-client.io/v1'
+kind: ExternalSecret
+metadata:
+  name: keywords-everywhere-keys
+  namespace: dps
+spec:
+  backendType: systemManager
+  data:
+    - key: aud.external.api.keywordseverywhere
+      name: keywords-everywhere-api-key

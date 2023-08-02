@@ -1,0 +1,57 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "data-monitors.fullname" . }}-job
+  labels:
+    tags.datadoghq.com/env: {{ .Values.dataMonitorsEnv }}
+    tags.datadoghq.com/service: dps-platform-data-monitors
+    tags.datadoghq.com/version: 1.0.0
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+{{ if .Values.dataMonitorsDeleteJobs }}
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded,hook-failed
+{{ else }}
+    helm.sh/hook-delete-policy: before-hook-creation
+{{ end }}
+spec:
+  template:
+    metadata:
+      labels:
+        tags.datadoghq.com/env: {{ .Values.dataMonitorsEnv }}
+        tags.datadoghq.com/service: dps-platform-data-monitors
+        tags.datadoghq.com/version: 1.0.0
+    spec:
+      containers:
+      - name: montecarlo-cli
+        image: {{ .Values.dataMonitorsRegistry }}.dkr.ecr.us-east-1.amazonaws.com/dps-montecarlo-cli:latest
+        command:
+          - /bin/sh
+          - -c
+          - |-
+            montecarlo validate
+            {{ .Values.dataMonitorsCommand }}
+            sleep 20s
+        env:
+          - name: MCD_DEFAULT_API_ID
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "data-monitors.fullname" . }}-montecarlo-secrets
+                key: montecarlo_api_id
+          - name: MCD_DEFAULT_API_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "data-monitors.fullname" . }}-montecarlo-secrets
+                key: montecarlo_api_token
+        volumeMounts:
+        - name: data-monitors-configurations-volume
+          mountPath: /usr/montecarlo/monitor-configurations
+      volumes:
+      - name: data-monitors-configurations-volume
+        configMap:
+          name: {{ include "data-monitors.fullname" . }}-files-configmap
+{{ if eq .Values.dataMonitorsEnv "local" }}
+      imagePullSecrets:
+      - name: registry-secret-dev
+{{ end }}
+      restartPolicy: Never
+  backoffLimit: 0

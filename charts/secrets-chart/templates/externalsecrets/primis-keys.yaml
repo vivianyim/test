@@ -1,0 +1,13 @@
+# External Secret
+apiVersion: 'kubernetes-client.io/v1'
+kind: ExternalSecret
+metadata:
+  name: primis-keys-airflow
+  namespace: dps
+spec:
+  backendType: systemManager
+  data:
+    - key: /dps/key/extractor/primis-api-user
+      name: primis-api-user
+    - key: /dps/key/extractor/primis-api-code
+      name: primis-api-user-code

@@ -1,0 +1,12 @@
+montecarlo:
+  freshness:
+    - table: raw:gam.mapped_earning_with_rev_share
+      name: GAM Earnings Available 9AM ET
+      freshness_threshold: 180 # required
+      description: Checks to see if earnings data from GAM was added on that morning
+      schedule:
+        type: fixed # must be fixed
+        start_time: "2022-08-16T13:00"
+        interval_minutes: 1440
+      labels:
+        - DPS

@@ -1,0 +1,17 @@
+{{ if .Values.isLocal }}
+# External Secret
+apiVersion: 'kubernetes-client.io/v1'
+kind: ExternalSecret
+metadata:
+  name: authoritas-api-config
+  namespace: dps
+spec:
+  backendType: systemManager
+  data:
+    - key: aud.external.api.authoritas.key.private
+      name: authoritas-private-key
+    - key: aud.external.api.authoritas.key.public
+      name: authoritas-public-key
+    - key: aud.external.api.authoritas.salt
+      name: authoritas-salt
+{{ end }}

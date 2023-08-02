@@ -1,0 +1,117 @@
+global:
+  image:
+    tag: 0.41.0
+  jobs:
+    kube:
+      annotations:
+        iam.amazonaws.com/role: system/hyak-role
+        ad.datadoghq.com/main.check_names: '["airbyte"]'
+        ad.datadoghq.com/main.init_configs: "[{}]"
+        ad.datadoghq.com/main.instances: '[{"url": "%%host%%", "tls_verify": "false"}]'
+        ad.datadoghq.com/main.logs: '[{"source":"airbyte","service":"airbyte-job"}]'
+  check_jobs:
+    kube:
+      annotations:
+        iam.amazonaws.com/role: system/hyak-role
+        ad.datadoghq.com/main.check_names: '["airbyte"]'
+        ad.datadoghq.com/main.init_configs: "[{}]"
+        ad.datadoghq.com/main.instances: '[{"url": "%%host%%", "tls_verify": "false"}]'
+        ad.datadoghq.com/main.logs: '[{"source":"airbyte","service":"airbyte-check-job"}]'
+
+isLocal: true
+airbyteEnv: local
+
+dpsAirbyte:
+  enableEfsPV: false
+
+octavia:
+  extraEnv:
+    - name: "IS_LOCAL"
+      value: "True"
+    - name: "SLICKSTREAM_MONGODB_URL_C01"
+      value: "c-c01-db03-s01.srv.slickstream.com"
+    - name: "SLICKSTREAM_MONGODB_PORT_C01"
+      value: "27017"
+    - name: "SLICKSTREAM_MONGODB_URL_C02"
+      value: "c-c02-db03-s01.srv.slickstream.com"
+    - name: "SLICKSTREAM_MONGODB_PORT_C02"
+      value: "27017"
+    - name: "SLICKSTREAM_MONGODB_URL_C03"
+      value: "c-c03-db03-s01.srv.slickstream.com"
+    - name: "SLICKSTREAM_MONGODB_PORT_C03"
+      value: "27017"
+    - name: "SLICKSTREAM_MONGODB_URL_C04"
+      value: "c-c04-db03-s01.srv.slickstream.com"
+    - name: "SLICKSTREAM_MONGODB_PORT_C04"
+      value: "27017"
+    - name: "SLICKSTREAM_MONGODB_URL_C05"
+      value: "c-c05-db03-s01.srv.slickstream.com"
+    - name: "SLICKSTREAM_MONGODB_PORT_C05"
+      value: "27017"
+    - name: "SLICKSTREAM_MONGODB_URL_C06"
+      value: "c-c06-db03-s01.srv.slickstream.com"
+    - name: "SLICKSTREAM_MONGODB_PORT_C06"
+      value: "27017"
+    - name: "SLICKSTREAM_MONGODB_URL_C07"
+      value: "c-c07-db03-s01.srv.slickstream.com"
+    - name: "SLICKSTREAM_MONGODB_PORT_C07"
+      value: "27017"
+    - name: "SLICKSTREAM_MONGODB_URL_C08"
+      value: "c-c08-db03-s01.srv.slickstream.com"
+    - name: "SLICKSTREAM_MONGODB_PORT_C08"
+      value: "27017"
+    - name: "SLICKSTREAM_MONGODB_URL_C09"
+      value: "c-c09-db03-s01.srv.slickstream.com"
+    - name: "SLICKSTREAM_MONGODB_PORT_C09"
+      value: "27017"
+    - name: "SLICKSTREAM_MONGODB_URL_C10"
+      value: "c-c10-db03-s01.srv.slickstream.com"
+    - name: "SLICKSTREAM_MONGODB_PORT_C10"
+      value: "27017"
+    - name: "SLICKSTREAM_MONGODB_URL_C11"
+      value: "c-c11-db03-s01.srv.slickstream.com"
+    - name: "SLICKSTREAM_MONGODB_PORT_C11"
+      value: "27017"
+    - name: "SLICKSTREAM_MONGODB_URL_C12"
+      value: "c-c12-db03-s01.srv.slickstream.com"
+    - name: "SLICKSTREAM_MONGODB_PORT_C12"
+      value: "27017"
+    - name: "SLICKSTREAM_MONGODB_URL_C13"
+      value: "c-c13-db03-s01.srv.slickstream.com"
+    - name: "SLICKSTREAM_MONGODB_PORT_C13"
+      value: "27017"
+    - name: "S3_AWS_ACCOUNT"
+      value: "312505582686"
+    - name: AIRBYTE_AWS_USER_KEY
+      valueFrom:
+        secretKeyRef:
+          name: dps-platform-airbyte-airbyte-secrets
+          key: airbyte_user_access_key
+    - name: AIRBYTE_AWS_SECRET_KEY
+      valueFrom:
+        secretKeyRef:
+          name: dps-platform-airbyte-airbyte-secrets
+          key: airbte_user_secret_key
+
+airbyte:
+  enabled: true
+  logs:
+    minio:
+      nameOverride: airbyte-minio
+  postgresql:
+    enabled: true
+    nameOverride: airbyte-postgresql
+    containerPorts:
+      postgresql: 5432
+  jobs:
+    kube:
+      annotations:
+        iam.amazonaws.com/role: system/hyak-role
+  webapp:
+    ingress:
+      enabled: true
+      hosts:
+        - host: "airbyte.local.development.cafemedia.com"
+          paths:
+            - path: /
+              pathType: ImplementationSpecific

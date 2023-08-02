@@ -1,0 +1,36 @@
+{{ if .Values.isLocal }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ include "airbyte-umbrella.fullname" . }}-octavia-pv
+  labels:
+    type: local
+spec:
+  storageClassName: {{ include "airbyte-umbrella.fullname" . }}-octavia-local 
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany 
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /root/airbyte
+{{ else if .Values.dpsAirbyte.enableEfsPV }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ include "airbyte-umbrella.fullname" . }}-octavia-pv
+  labels:
+    volume-type: efs
+    use-for: {{ include "airbyte-umbrella.fullname" . }}-octavia
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: {{ include "airbyte-umbrella.fullname" . }}-octavia-efs
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: "{{ .Values.dpsAirbyte.efsId }}"
+{{ end }}

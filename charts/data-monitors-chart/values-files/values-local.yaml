@@ -1,0 +1,4 @@
+dataMonitorsEnv: "local"
+dataMonitorsRegistry: "312505582686"
+dataMonitorsCommand: "montecarlo monitors apply --namespace production --dry-run"
+dataMonitorsDeleteJobs: true

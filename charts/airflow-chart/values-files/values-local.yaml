@@ -1,0 +1,197 @@
+isLocal: true
+
+dpsAirflow:
+  ## @param dpsAirflow.enableLogsEfsPV switch to create EFS based PV for airflow logs
+  enableLogsEfsPV: false
+  enableLdap: false
+  executeMarmaladeJob: false
+
+airflow:
+  enabled: true
+  executor: CeleryKubernetesExecutor
+  securityContext:
+    fsGroup: 2000
+  images:
+    flower:
+      tag: 2.6.2
+  statsd:
+    enabled: false
+  config:
+    secrets:
+      backend: "airflow.providers.amazon.aws.secrets.systems_manager.SystemsManagerParameterStoreBackend"
+      backend_kwargs: '{"connections_prefix": "/dps/airflow/connections", "variables_prefix": "/dps/airflow/variables"}'
+    metrics:
+      statsd_on: true
+      statsd_port: 8125
+  env:
+    - name: AIRFLOW__WEBSERVER__INSTANCE_NAME
+      value: "DAGs"
+    - name: AWS_DEFAULT_REGION
+      value: us-east-1
+    - name: AWS_PROFILE
+      value: saml
+    - name: "AIRFLOW_VAR_ENV"
+      value: "local"
+    - name: "AIRFLOW_VAR_AWS_ACCOUNT"
+      value: "312505582686"
+    - name: AIRFLOW__CORE__PARALLELISM
+      value: "128"
+    - name: AIRFLOW__CORE__DEFAULT_TIMEZONE
+      value: "America/New_York"
+    - name: AIRFLOW__WEBSERVER__DEFAULT_UI_TIMEZONE
+      value: "America/New_York"
+  extraEnv: |-
+    - name: "DD_AGENT_HOST"
+      valueFrom:
+        fieldRef:
+          fieldPath: status.hostIP
+    - name: AIRFLOW__METRICS__STATSD_HOST
+      valueFrom:
+        fieldRef:
+          fieldPath: status.hostIP
+  data:
+    metadataConnection:
+      host: dps-platform-airflow-airflow-postgresql
+  postgresql:
+    enabled: true
+    nameOverride: airflow-postgresql
+    containerPorts:
+      postgresql: 5432
+
+  logs:
+    persistence:
+      enabled: true
+      size: 1Gi
+      storageClassName: manual
+      existingClaim: dps-platform-airflow-logs-pvc
+
+  dags:
+    persistence:
+      enabled: true
+      size: 1Gi
+      storageClassName: manual
+      existingClaim: dps-platform-airflow-dags-pvc
+
+  scheduler:
+    extraVolumes:
+      - name: aws-credentials
+        hostPath:
+          path: /root/.aws
+    extraVolumeMounts:
+      - name: aws-credentials
+        mountPath: /home/airflow/.aws
+    podAnnotations:
+      ad.datadoghq.com/scheduler.check_names: '["airflow"]'
+      ad.datadoghq.com/scheduler.logs: '[{"source":"dps-airflow","service":"dps-airflow-scheduler"}]'
+      ad.datadoghq.com/scheduler.init_configs: "[{}]"
+      ad.datadoghq.com/scheduler.instances: '[{"url": "%%host%%", "tls_verify": "false"}]'
+    extraInitContainers:
+      - name: change-logs-owner
+        image: busybox
+        command: ["sh", "-c", "chown 50000:0 /opt/airflow/logs"]
+        securityContext:
+          runAsUser: 0
+        volumeMounts:
+          - name: logs
+            mountPath: /opt/airflow/logs
+  webserver:
+    defaultUser:
+      password: "admin"
+    extraVolumes:
+      - name: aws-credentials
+        hostPath:
+          path: /root/.aws
+      - name: webserver-config-volume
+        configMap:
+          name: dps-platform-airflow-webserver-config
+    extraVolumeMounts:
+      - name: aws-credentials
+        mountPath: /home/airflow/.aws
+      - name: webserver-config-volume
+        mountPath: /opt/airflow/webserver_config.py
+        subPath: webserver_config.py
+      - name: webserver-config-volume
+        mountPath: /opt/airflow/webserver_config.yaml
+        subPath: webserver_config.yaml
+    podAnnotations:
+      ad.datadoghq.com/webserver.check_names: '["airflow"]'
+      ad.datadoghq.com/webserver.logs: '[{"source":"dps-airflow","service":"dps-airflow-webserver"}]'
+      ad.datadoghq.com/webserver.init_configs: "[{}]"
+      ad.datadoghq.com/webserver.instances: '[{"url": "%%host%%", "tls_verify": "false"}]'
+  createUserJob:
+    command:
+      - "bash"
+      - "-c"
+      - |-
+        airflow users delete --username "{{ .Values.webserver.defaultUser.username }}";
+        airflow users create "$@"
+      - "--"
+    args:
+      - "-r"
+      - "{{ .Values.webserver.defaultUser.role }}"
+      - "-u"
+      - "{{ .Values.webserver.defaultUser.username }}"
+      - "-e"
+      - "{{ .Values.webserver.defaultUser.email }}"
+      - "-f"
+      - "{{ .Values.webserver.defaultUser.firstName }}"
+      - "-l"
+      - "{{ .Values.webserver.defaultUser.lastName }}"
+      - "-p"
+      - "{{ .Values.webserver.defaultUser.password }}"
+    securityContext:
+      runAsUser: 50000
+  # Uncomment this setting to resolve db migration timeout error.
+  migrateDatabaseJob:
+    useHelmHooks: false
+  triggerer:
+    extraVolumes:
+      - name: aws-credentials
+        hostPath:
+          path: /root/.aws
+    extraVolumeMounts:
+      - name: aws-credentials
+        mountPath: /home/airflow/.aws
+    podAnnotations:
+      ad.datadoghq.com/triggerer.check_names: '["airflow"]'
+      ad.datadoghq.com/triggerer.logs: '[{"source":"dps-airflow","service":"dps-airflow-triggerer"}]'
+      ad.datadoghq.com/triggerer.init_configs: "[{}]"
+      ad.datadoghq.com/triggerer.instances: '[{"url": "%%host%%", "tls_verify": "false"}]'
+  workers:
+    replicas: 2
+    extraVolumes:
+      - name: aws-credentials
+        hostPath:
+          path: /root/.aws
+    extraVolumeMounts:
+      - name: aws-credentials
+        mountPath: /home/airflow/.aws
+    podAnnotations:
+      ad.datadoghq.com/worker.check_names: '["airflow"]'
+      ad.datadoghq.com/worker.logs: '[{"source":"dps-airflow","service":"dps-airflow-worker"}]'
+      ad.datadoghq.com/worker.init_configs: "[{}]"
+      ad.datadoghq.com/worker.instances: '[{"url": "%%host%%", "tls_verify": "false"}]'
+  flower:
+    enabled: true
+    podAnnotations:
+      ad.datadoghq.com/flower.check_names: '["airflow"]'
+      ad.datadoghq.com/flower.logs: '[{"source":"dps-airflow","service":"dps-airflow-flower"}]'
+      ad.datadoghq.com/flower.init_configs: "[{}]"
+      ad.datadoghq.com/flower.instances: '[{"url": "%%host%%", "tls_verify": "false"}]'
+  kubernetesPodTemplate:
+    extraVolumes:
+      - name: aws-credentials
+        hostPath:
+          path: /root/.aws
+    extraVolumeMounts:
+      - name: aws-credentials
+        mountPath: /home/airflow/.aws
+
+  ingress:
+    web:
+      enabled: true
+      hosts:
+        - "airflow.local.development.cafemedia.com"
+
+  registry:
+    secretName: registry-secret-dev

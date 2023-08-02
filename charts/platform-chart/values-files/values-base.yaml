@@ -1,0 +1,5 @@
+
+## @param dpsPlatform.dagsEfsId id of DAGs EFS volume in aws
+dagsEfsId: {{ airflow_dags_efs.value }}
+## @param dpsPlatform.dagsDeploymentS3Prefix provides the S3 prefix to use for deployment requests
+dagsDeploymentS3Prefix: new-requests

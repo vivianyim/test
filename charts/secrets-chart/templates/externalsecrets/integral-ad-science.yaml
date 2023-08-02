@@ -1,0 +1,22 @@
+# External Secret
+# Creates a secret within the "dps" namespace for the Integral Ad Science ETL
+apiVersion: 'kubernetes-client.io/v1'
+kind: ExternalSecret
+metadata:
+  name: integral-ad-science-airflow
+  namespace: dps
+spec:
+  backendType: systemManager
+  data:
+    # Storage
+    - key: /dps/config/integral-ad-science/datascience-bucket
+      name: datascience-bucket
+    # IAS API client ID and secret
+    - key: /dps/key/integral-ad-science/client-id
+      name: client-id
+    - key: /dps/config/integral-ad-science/secret
+      name: secret
+    # In the case that an assumed role inside the Datascience account is
+    # neccessary, it can be defined here
+    - key: /dps/config/integral-ad-science/datascience-aws-role
+      name: datascience-aws-role

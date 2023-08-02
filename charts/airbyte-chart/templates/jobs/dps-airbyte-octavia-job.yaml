@@ -1,0 +1,144 @@
+{{ if .Values.airbyte.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "airbyte-umbrella.fullname" . }}-octavia-job
+  namespace: dps
+  annotations:
+    tags.datadoghq.com/env: {{ .Values.airbyteEnv }}
+    tags.datadoghq.com/service: octavia-job
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation, hook-succeeded, hook-failed
+spec:
+  template:
+    spec:
+      initContainers:
+        - name: wait-for-webapp
+          image: busybox:1.28
+          command:
+            - /bin/sh
+            - -c
+            - |
+              until nslookup {{ include "airbyte-umbrella.fullname" . }}-airbyte-webapp-svc; do
+                echo "waiting for webapp..."
+                sleep 5
+              done
+      containers:
+        - name: dps-octavia-container
+          image: airbyte/octavia-cli:0.40.33
+          workingDir: /home/airbyte
+          command: ["/bin/sh"]
+          securityContext:
+            runAsUser: 0
+          args:
+            - -c
+            - |-
+              python /home/octavia-project/old/files-x-python-x-create_structure.py && \
+              python /home/octavia-project/new/files/python/create_resources.py && \
+              python /home/octavia-project/new/files/python/delete_resources.py && \
+              octavia init && \
+              yes | octavia apply
+          env:
+            - name: AIRBYTE_URL
+              value: {{ include "airbyte-umbrella.fullname" . }}-airbyte-webapp-svc
+            - name: SNOWFLAKE_ROLE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "airbyte-umbrella.fullname" . }}-snowflake-secrets
+                  key: db.role
+            - name: SNOWFLAKE_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "airbyte-umbrella.fullname" . }}-snowflake-secrets
+                  key: db.raw
+            - name: SNOWFLAKE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "airbyte-umbrella.fullname" . }}-snowflake-secrets
+                  key: db.user
+            - name: SNOWFLAKE_WAREHOUSE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "airbyte-umbrella.fullname" . }}-snowflake-secrets
+                  key: db.airbyte-warehouse
+            - name: SNOWFLAKE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "airbyte-umbrella.fullname" . }}-snowflake-secrets
+                  key: db.password
+            - name: SNOWFLAKE_ACCOUNT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "airbyte-umbrella.fullname" . }}-snowflake-secrets
+                  key: db.account
+            - name: POSTGRES_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "airbyte-umbrella.fullname" . }}-postgres-secrets
+                  key: db.host
+            - name: POSTGRES_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "airbyte-umbrella.fullname" . }}-postgres-secrets
+                  key: db.database
+            - name: POSTGRES_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "airbyte-umbrella.fullname" . }}-postgres-secrets
+                  key: db.master-user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "airbyte-umbrella.fullname" . }}-postgres-secrets
+                  key: db.master-password
+            - name: POSTGRES_AIRBYTE_SERVICE_USER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "airbyte-umbrella.fullname" . }}-airbyte-secrets
+                  key: postgres_airbyte_service_user_password
+            - name: SALESFORCE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "airbyte-umbrella.fullname" . }}-salesforce-secrets
+                  key: client-id
+            - name: SALESFORCE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "airbyte-umbrella.fullname" . }}-salesforce-secrets
+                  key: client-secret
+            - name: SALESFORCE_REFRESH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "airbyte-umbrella.fullname" . }}-salesforce-secrets
+                  key: refresh-token
+            - name: SLICKSTREAM_MONGODB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "airbyte-umbrella.fullname" . }}-slickstream-mongodb-secrets
+                  key: username
+            - name: SLICKSTREAM_MONGODB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "airbyte-umbrella.fullname" . }}-slickstream-mongodb-secrets
+                  key: password
+            {{- if (.Values.octavia).extraEnv }}
+            {{ .Values.octavia.extraEnv | toYaml | nindent 12 }}
+            {{- end }}
+          volumeMounts:
+            - name: working-dir
+              mountPath: /home/octavia-project/new
+            - name: airbyte-files-volume
+              mountPath: /home/octavia-project/old
+            - name: airbyte-efs-volume
+              mountPath: /home/airbyte
+      volumes:
+        - name: working-dir
+          emptyDir: {}
+        - name: airbyte-files-volume
+          configMap:
+            name: {{ include "airbyte-umbrella.fullname" . }}-octavia-files-configmap
+        - name: airbyte-efs-volume
+          persistentVolumeClaim:
+            claimName: {{ include "airbyte-umbrella.fullname" . }}-octavia-pvc
+      restartPolicy: Never
+{{ end }}

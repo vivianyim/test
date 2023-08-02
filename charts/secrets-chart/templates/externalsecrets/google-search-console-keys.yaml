@@ -1,0 +1,14 @@
+# External Secret
+# Creates and syncronizes a Kubernetes secret using a backend storage source
+apiVersion: 'kubernetes-client.io/v1'
+kind: ExternalSecret
+metadata:
+  name: google-search-console-keys-airflow
+  namespace: dps
+spec:
+  backendType: systemManager
+  data:
+    - key: /dps/key/extractor/google-search-console-oauth-key
+      name: google-search-console-oauth-key
+    - key: /dps/key/extractor/google-search-consle-oauth-secret
+      name: google-search-console-oauth-secret

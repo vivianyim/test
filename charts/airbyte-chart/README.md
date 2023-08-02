@@ -1,0 +1,1 @@
+Please consult the following Confluence document for more information about this chart: [Airbyte Connections as Code](https://cafemedia.atlassian.net/wiki/spaces/DPS/pages/2698739775/Airbyte+Connections+as+Code)

@@ -1,0 +1,15 @@
+# External Secret
+apiVersion: 'kubernetes-client.io/v1'
+kind: ExternalSecret
+metadata:
+  name: pinecone-api-keys
+  namespace: dps
+spec:
+  backendType: systemManager
+  data:
+    - key: aud.external.api.pinecone
+      name: pinecone-api-key
+    - key: aud.external.api.pinecone-index-name
+      name: pinecone-index-name
+    - key: aud.external.api.pinecone-namespace
+      name: pinecone-namespace

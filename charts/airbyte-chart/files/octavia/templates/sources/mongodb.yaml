@@ -1,0 +1,15 @@
+{%- extends "source.yaml" %}
+{%- set definition_id = "b2e713cd-cc36-4c0a-b5bd-b47cb8a0561e" %}
+{%- set definition_image = "airbyte/source-mongodb-v2" %}
+{%- set definition_version = "0.1.15" %}
+{%- block source %}
+user: {{ user }}
+database: {{ database }}
+password: "{{ password }}"
+auth_source: {{ auth_source }}
+instance_type:
+  tls: {{ tls }}
+  host: {{ host }}
+  port: {{ port }}
+  instance: {{ instance }}
+{%- endblock %}

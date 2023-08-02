@@ -1,0 +1,138 @@
+montecarlo:
+  custom_sql:
+    - sql: |
+        WITH hours AS (
+          SELECT DISTINCT datehour
+          FROM ANALYTICS.MAGNITE.VW_HOURLY_BY_DOMAIN
+          WHERE datehour >= dateadd('hour', -15, CURRENT_TIMESTAMP)
+        ),
+        lags AS (
+          SELECT 
+            datehour,
+            LAG(datehour)
+              OVER(
+                ORDER BY datehour ASC
+              ) AS prev_hour
+          FROM hours
+        ),
+        gaps AS (
+          SELECT COUNT(*) AS gaps 
+          FROM lags 
+          WHERE prev_hour IS NOT NULL 
+          AND DATEDIFF('hours', datehour, prev_hour) != -1
+        )
+        SELECT gaps
+        FROM gaps;
+      query_result_type: SINGLE_NUMERIC
+      name: Alert - Magnite-Hourly-By-Domain Gaps
+      description: Magnite-Hourly-By-Domain data gaps present in the last 15 hrs.
+      notes: |
+        Get a list of distinct hours and verify that the difference between them in order is exactly 1. Otherwise, alert.
+        Runbook - https://cafemedia.atlassian.net/wiki/spaces/DPS/pages/1668120995/Magnite+Hourly+By+Device
+      comparisons:
+        - type: threshold
+          operator: GT
+          threshold_value: 0
+      schedule:
+        type: fixed
+        start_time: "2022-10-18T00:00:00"
+        interval_minutes: 60
+      labels:
+        - DPS
+
+    - sql: |
+        WITH hours AS (
+          SELECT DISTINCT datehour
+          FROM ANALYTICS.MAGNITE.VW_HOURLY_BY_DOMAIN
+          WHERE datehour >= dateadd('hour', -15, CURRENT_TIMESTAMP)
+        ),
+        most_recent AS (
+          SELECT MIN(DATEDIFF('hours', datehour, CURRENT_TIMESTAMP(0))) AS most_recent 
+          FROM hours
+        )
+        SELECT most_recent
+        FROM most_recent;
+      query_result_type: SINGLE_NUMERIC
+      name: Alert - Magnite-Hourly-By-Domain Most Recent
+      description: Magnite-Hourly-By-Domain most recent hour.
+      notes: |
+        Ensure that the most recent data is not older than 15 hours. Otherwise, alert.
+        Runbook - https://cafemedia.atlassian.net/wiki/spaces/DPS/pages/1668120995/Magnite+Hourly+By+Device
+      comparisons:
+        - type: threshold
+          operator: GT
+          threshold_value: 20
+      schedule:
+        type: fixed
+        start_time: "2022-10-18T00:00:00"
+        interval_minutes: 60
+      labels:
+        - DPS
+
+    - sql: |
+        WITH hours AS (
+          SELECT DISTINCT datehour
+          FROM ANALYTICS.MAGNITE.VW_HOURLY_BY_DEVICE
+          WHERE datehour >= dateadd('hour', -15, CURRENT_TIMESTAMP)
+        ),
+        lags AS (
+          SELECT datehour,
+          LAG(datehour)
+            OVER(
+              ORDER BY datehour ASC
+            ) as prev_hour
+          FROM hours
+        ),
+        gaps AS (
+          SELECT COUNT(*) AS gaps 
+          FROM lags 
+          WHERE prev_hour IS NOT NULL 
+          AND DATEDIFF('hours', datehour, prev_hour) != -1
+        )
+        SELECT gaps
+        FROM gaps;
+      query_result_type: SINGLE_NUMERIC
+      name: Alert - Magnite-Hourly-By-Device Gaps
+      description: Magnite-Hourly-By-Device data gaps present in the last 15 hrs.
+      notes: |
+        Get a list of distinct hours and verify that the difference between them in order is exactly 1. Otherwise, alert.
+        Runbook - https://cafemedia.atlassian.net/wiki/spaces/DPS/pages/1668120995/Magnite+Hourly+By+Device
+      comparisons:
+        - type: threshold
+          operator: GT
+          threshold_value: 0
+      schedule:
+        type: fixed
+        start_time: "2022-10-18T00:00:00"
+        interval_minutes: 60
+      labels:
+        - DPS
+
+    - sql: |
+        WITH hours AS (
+          SELECT DISTINCT datehour
+          FROM ANALYTICS.MAGNITE.VW_HOURLY_BY_DEVICE
+          WHERE datehour >= dateadd('hour', -15, CURRENT_TIMESTAMP)
+        ),
+        most_recent AS (
+          SELECT MIN(DATEDIFF('hours', datehour, CURRENT_TIMESTAMP(0))) AS most_recent 
+          FROM hours
+        )
+        SELECT most_recent
+        FROM most_recent;
+      query_result_type: SINGLE_NUMERIC
+      name: Alert - Magnite-Hourly-By-Device Most Recent
+      description: Magnite-Hourly-By-Device most recent hour.
+      notes: |
+        Ensure that the most recent data is not older than 15 hours. Otherwise, alert.
+        Runbook - https://cafemedia.atlassian.net/wiki/spaces/DPS/pages/1668120995/Magnite+Hourly+By+Device
+      comparisons:
+        - type: threshold
+          operator: GT
+          threshold_value: 20
+      schedule:
+        type: fixed
+        start_time: "2022-10-18T00:00:00"
+        interval_minutes: 60
+      labels:
+        - DPS

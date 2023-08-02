@@ -1,0 +1,4 @@
+dataMonitorsEnv: "production"
+dataMonitorsRegistry: "230172922685"
+dataMonitorsCommand: "montecarlo monitors apply --namespace production"
+dataMonitorsDeleteJobs: true

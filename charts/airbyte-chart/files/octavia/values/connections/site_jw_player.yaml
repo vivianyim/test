@@ -1,0 +1,12 @@
+_template: connection
+
+resource_name: site_jw_player
+
+source: adthrive_postgres_looker_replica
+destination: snowflake_airbyte
+status: active
+namespace_format: AIRBYTE
+streams:
+  - name: site_jw_player
+    namespace: public
+    destination_sync_mode: append

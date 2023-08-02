@@ -1,0 +1,25 @@
+{{ if .Values.isLocal }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "airbyte-umbrella.fullname" . }}-octavia-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: {{ include "airbyte-umbrella.fullname" . }}-octavia-local
+  resources:
+    requests:
+      storage: 1Gi
+{{ else if .Values.dpsAirbyte.enableEfsPV }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "airbyte-umbrella.fullname" . }}-octavia-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: {{ include "airbyte-umbrella.fullname" . }}-octavia-efs
+  resources:
+    requests:
+      storage: 5Gi
+{{ end }}
