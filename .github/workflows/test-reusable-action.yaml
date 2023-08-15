@@ -17,5 +17,6 @@ jobs:
   
   steps:
     -name: Test
+     id: check
      run: |
         echo ${{needs.extract.outputs.result}}
