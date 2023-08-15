@@ -16,7 +16,6 @@ jobs:
       contents: read
 
   steps:
-    - name: Test
-      id: check
+    - name: test
       run: |
         echo ${{needs.extract.outputs.result}}
