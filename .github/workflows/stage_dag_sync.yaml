@@ -12,7 +12,6 @@ jobs:
   stage-deploy:
     # needs: [confirm-tag-on-main-branch]
     # if: needs.confirm-tag-on-main-branch.outputs.result == 'true'
-    runs-on: ubuntu-latest
     uses: ./.github/workflows/dag_sync_reusable.yaml
     with:
       environment: "stage"
