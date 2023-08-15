@@ -1,20 +1,20 @@
-name: Confirm current tag is on main branch
+name: Input
 on:
   workflow_call:
     outputs:
       result:
-        value: ${{ jobs.environment-from-tag.outputs.result }}
+        value: ${{ jobs.environment-from-tag.outputs.environment }}
 
 jobs:
   environment-from-tag:
     runs-on: ubuntu-latest
     outputs:
-      result: ${{ steps.extract_step.outputs.result }}
+      environment: ${{ steps.extract_step.outputs.environment }}
     steps:
       - name: Confirm tag on main branch
         id: extract_step
         run: |
           raw=$( echo $GITHUB_REF_NAME | cut -d "." -f 3 | cut -d "-" -f 2 )
           echo "$raw"
-          echo "result=${raw}" >> $GITHUB_OUTPUT
-          echo "Result is $result."
+          echo "environment=${raw}" >> $GITHUB_OUTPUT
+          echo "Result is $environment."

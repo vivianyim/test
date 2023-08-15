@@ -1,0 +1,24 @@
+name: Dag Sync Stage Env
+
+on:
+  push:
+    tags:
+      - "v*.*.*-stage.*"
+
+jobs:
+  # confirm-tag-on-main-branch:
+  #   uses: ./.github/workflows/reusable-confirm-tag-on-main-branch.yaml
+
+  stage-deploy:
+    # needs: [confirm-tag-on-main-branch]
+    # if: needs.confirm-tag-on-main-branch.outputs.result == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Create file and upload to S3
+        uses: ./.github/workflows/dag_sync_reusable.yaml
+        with:
+          environment: "stage"
