@@ -1,0 +1,21 @@
+name: Test Resuable Extract Action
+
+on:
+  push:
+    tags:
+      - "v*.*.*-*.*"
+  
+jobs:
+  extract:
+    uses: ./.github/workflows/resuable-extract-environment-from-tag.yaml
+  
+  test:
+    needs: [extract]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+  
+  steps:
+    -name: Test
+     run: |
+        echo ${{needs.extract.outputs.result}}
