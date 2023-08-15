@@ -16,6 +16,6 @@ jobs:
       contents: read
 
   steps:
-    - name: test
-      run: |
-        echo ${{needs.extract.outputs.result}}
+  - name: test
+    run: |
+      echo ${{needs.extract.outputs.result}}
