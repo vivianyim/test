@@ -4,19 +4,19 @@ on:
   push:
     tags:
       - "v*.*.*-*.*"
-  
+
 jobs:
   extract:
     uses: ./.github/workflows/resuable-extract-environment-from-tag.yaml
-  
+
   test:
     needs: [extract]
     runs-on: ubuntu-latest
     permissions:
       contents: read
-  
+
   steps:
-    -name: Test
-     id: check
-     run: |
+    - name: Test
+      id: check
+      run: |
         echo ${{needs.extract.outputs.result}}
