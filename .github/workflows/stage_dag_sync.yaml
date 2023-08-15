@@ -13,9 +13,6 @@ jobs:
     # needs: [confirm-tag-on-main-branch]
     # if: needs.confirm-tag-on-main-branch.outputs.result == 'true'
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
 
     steps:
       - name: Create file and upload to S3
