@@ -19,5 +19,5 @@ jobs:
     - name: test
       run: |
         echo "Current environment is: ${{needs.extract.outputs.result}}"
-        echo "Repo: $GITHUB_ACTION_REPOSITORY"
+        echo "Repo: $GITHUB_REPOSITORY"
         echo "Actor: $GITHUB_ACTOR"
