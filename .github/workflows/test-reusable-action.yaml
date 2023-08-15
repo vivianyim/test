@@ -15,7 +15,7 @@ jobs:
     permissions:
       contents: read
 
-  steps:
-  - name: test
-    run: |
-      echo ${{needs.extract.outputs.result}}
+    steps:
+    - name: test
+      run: |
+        echo ${{needs.extract.outputs.result}}
