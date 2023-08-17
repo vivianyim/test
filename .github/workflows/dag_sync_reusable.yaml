@@ -11,15 +11,19 @@ on:
       actions:
         description: "Name of the actions to deploy"
         default: ""
+        type: string
       branch:
         description: "Name of the branch to deploy"
         default: ""
+        type: string
       dag_folder:
         description: "Name of the dag_folder to deploy"
         default: ""
+        type: string
       dag_tags:
         description: "Name of the dag_tags to deploy"
         default: ""
+        type: string
 
 
 jobs:
