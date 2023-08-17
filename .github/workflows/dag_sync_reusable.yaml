@@ -8,14 +8,30 @@ on:
         default: "dev"
         required: true
         type: string
+      actions:
+        description: "Name of the actions to deploy"
+        default: ""
+      branch:
+        description: "Name of the branch to deploy"
+        default: ""
+      dag_folder:
+        description: "Name of the dag_folder to deploy"
+        default: ""
+      dag_tags:
+        description: "Name of the dag_tags to deploy"
+        default: ""
+
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
+    - name: check out repository
+      uses: actions/checkout@v2
     - name: test
       run: |
         echo "Current environment is: ${{ inputs.environment }}"
         echo "Repo: $GITHUB_REPOSITORY"
         echo "Actor: $GITHUB_ACTOR"
+        echo '{"action": "${{ inputs.action }}", "branch": "${{ inputs.branch }}", "dag_folder": "${{ inputs.dag_folder }}", "dag_tags": "${{ inputs.dag_tags }}", "branch_tag":""}'

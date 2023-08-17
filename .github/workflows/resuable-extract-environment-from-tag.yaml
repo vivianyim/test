@@ -18,3 +18,4 @@ jobs:
           echo "$raw"
           echo "environment=${raw}" >> $GITHUB_OUTPUT
           echo "Result is $environment."
+
