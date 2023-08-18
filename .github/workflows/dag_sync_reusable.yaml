@@ -33,7 +33,7 @@ jobs:
     - name: test
       run: |
         echo "Current environment is: ${{ inputs.environment }}"
-        echo "{"user": "${{ github.actor }}"
+        echo "user": "${{ github.actor }}"
         echo "repo": "${{ github.repository }}"
         echo "environment": "${{ inputs.environment }}"
         echo "action": "${{ inputs.action }}"
