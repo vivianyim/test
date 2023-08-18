@@ -10,7 +10,7 @@ on:
     inputs:
       action:
         description: 'The action to perform - create or delete.'
-        # required: true
+        required: true
         default: 'create'
         type: string
         options:
@@ -18,11 +18,11 @@ on:
         - delete
       branch:
         description: 'The branch name to deploy or delete.'
-        # required: true
+        required: true
         type: string
       dag_folder:
         description: 'The folder containing the dag to deploy or delete.'
-        # required: true
+        required: true
         type: string
       dag_tags:
         description: 'Optional dag tags, comma separated string.'
