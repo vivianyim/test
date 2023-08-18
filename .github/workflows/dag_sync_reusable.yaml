@@ -38,7 +38,7 @@ jobs:
         echo "environment": "${{ inputs.environment }}"
         echo "action": "${{ inputs.action }}"
         echo "branch": "${{ inputs.branch }}"
-        echo" dag_folder": "${{ inputs.dag_folder }}"
+        echo "dag_folder": "${{ inputs.dag_folder }}"
         echo "dag_tags": "${{ inputs.dag_tags }}"
         echo "branch_tag":"${{ github.ref_name }}"
         echo "Repo: $GITHUB_REPOSITORY"
