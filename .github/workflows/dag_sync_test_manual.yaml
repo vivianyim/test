@@ -1,0 +1,103 @@
+# This action will create a dictionary of the inputs and will
+# upload them to a file on the S3 bucket. That file will then be
+# processed by the "dags-sync-cronjob"  cronjob which will upload the dag code from the
+# specified branch to Airflow in the development environment.
+
+name: Dag Sync Test Manual in Dev
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'The action to perform - create or delete.'
+        # required: true
+        default: 'create'
+        type: string
+        options:
+        - create
+        - delete
+      branch:
+        description: 'The branch name to deploy or delete.'
+        # required: true
+        type: string
+      dag_folder:
+        description: 'The folder containing the dag to deploy or delete.'
+        # required: true
+        type: string
+      dag_tags:
+        description: 'Optional dag tags, comma separated string.'
+        required: false
+        type: string
+
+jobs:
+  dev-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+
+    - name: Check Action
+      run: |
+        status=0
+        action_trimmed=`echo ${{ inputs.action }} | xargs`
+        # if [ "$action_trimmed" != "create" ] && [ "$action_trimmed" != "delete" ]; then
+        #     echo "Invalid action \"${{ inputs.action }}\". Action must be \"create\" or \"delete.\""
+        #     status=1
+        # fi
+        # exit "$status"
+
+    - name: Checkout Hyak
+      uses: actions/checkout@v3
+      if: ${{ contains(inputs.action, 'create') }}
+      with:
+        fetch-depth: 0
+
+    - name: Check Branch Exists
+      if: ${{ contains(inputs.action, 'create') }}
+      run: |
+        status=0
+        branch_name_trimmed=`echo ${{ inputs.branch }} | xargs`
+
+        git ls-remote --exit-code --heads origin $branch_name_trimmed || status="$?"
+        if [ $status -eq 2 ]; then
+            echo "Branch \"$branch_name_trimmed\" does not exist in the remote repository."
+        elif [[ "$branch_name_trimmed" == *" "* ]]; then
+            echo "Branch name \"$branch_name_trimmed\" must not contain spaces."
+            status=1
+        else
+            # reset the status
+            status=0
+        fi
+        exit "$status"
+
+    - name: Checkout Branch
+      uses: actions/checkout@v3
+      if: ${{ contains(inputs.action, 'create') }}
+      with:
+        ref: ${{ inputs.branch }}
+
+    - name: Check Dag Folder Exists
+      if: ${{ contains(inputs.action, 'create') }}
+      working-directory: ./airflow/dags
+      run: |
+        status=0
+        dag_folder_trimmed=`echo ${{ inputs.dag_folder }} | xargs`
+
+        if [ ! -d "$dag_folder_trimmed" ]; then
+            echo "Dag folder \"$dag_folder_trimmed\" does not exist in branch \"${{ inputs.branch }}\"."
+            status=1
+        fi
+        exit "$status"
+
+  reusable_sync_job:
+    needs: [dev-deploy]
+    name: Dag sync reusable
+    uses: ./.github/workflows/dag_sync_reusable.yaml
+    with:
+      environment: "dev"
+      aws-account: "312505582686"
+    secrets:
+      aws-access-key-id: ${{ secrets.IAC_AWS_KEY_CMI_DEVELOPMENT}}
+      aws-secret-access-key: ${{ secrets.IAC_AWS_SECRET_CMI_DEVELOPMENT }}

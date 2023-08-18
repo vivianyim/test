@@ -8,6 +8,22 @@ on:
         default: "dev"
         required: true
         type: string
+    actions:
+        description: "Name of the actions to deploy"
+        default: ""
+        type: string
+      branch:
+        description: "Name of the branch to deploy"
+        default: ""
+        type: string
+      dag_folder:
+        description: "Name of the dag_folder to deploy"
+        default: ""
+        type: string
+      dag_tags:
+        description: "Name of the dag_tags to deploy"
+        default: ""
+        type: string
 
 jobs:
   test:
@@ -17,5 +33,13 @@ jobs:
     - name: test
       run: |
         echo "Current environment is: ${{ inputs.environment }}"
+        echo '{"user": "${{ github.actor }}"
+        echo "repo": "${{ github.repository }}"
+        echo "environment": "${{ inputs.environment }}"
+        echo "action": "${{ inputs.action }}"
+        echo "branch": "${{ inputs.branch }}"
+        echo" dag_folder": "${{ inputs.dag_folder }}"
+        echo "dag_tags": "${{ inputs.dag_tags }}"
+        echo "branch_tag":"${{ github.ref_name }}"
         echo "Repo: $GITHUB_REPOSITORY"
         echo "Actor: $GITHUB_ACTOR"
