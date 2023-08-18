@@ -42,11 +42,11 @@ jobs:
       run: |
         status=0
         action_trimmed=`echo ${{ inputs.action }} | xargs`
-        # if [ "$action_trimmed" != "create" ] && [ "$action_trimmed" != "delete" ]; then
-        #     echo "Invalid action \"${{ inputs.action }}\". Action must be \"create\" or \"delete.\""
-        #     status=1
-        # fi
-        # exit "$status"
+        if [ "$action_trimmed" != "create" ] && [ "$action_trimmed" != "delete" ]; then
+            echo "Invalid action \"${{ inputs.action }}\". Action must be \"create\" or \"delete.\""
+            status=1
+        fi
+        exit "$status"
 
     - name: Checkout Hyak
       uses: actions/checkout@v3
