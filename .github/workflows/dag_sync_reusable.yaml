@@ -8,7 +8,7 @@ on:
         default: "dev"
         required: true
         type: string
-    actions:
+      actions:
         description: "Name of the actions to deploy"
         default: ""
         type: string
