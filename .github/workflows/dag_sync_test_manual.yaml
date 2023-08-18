@@ -98,6 +98,6 @@ jobs:
     with:
       environment: "dev"
       aws-account: "312505582686"
-    secrets:
-      aws-access-key-id: ${{ secrets.IAC_AWS_KEY_CMI_DEVELOPMENT}}
-      aws-secret-access-key: ${{ secrets.IAC_AWS_SECRET_CMI_DEVELOPMENT }}
+    # secrets:
+    #   aws-access-key-id: ${{ secrets.IAC_AWS_KEY_CMI_DEVELOPMENT}}
+    #   aws-secret-access-key: ${{ secrets.IAC_AWS_SECRET_CMI_DEVELOPMENT }}
